@@ -37,7 +37,7 @@
 
             <Border Grid.Column="0">
                 <StackPanel Margin="10">
-                    <TextBlock Text="Výpis dat" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Text="Výpis dat" Foreground="RoyalBlue" FontWeight="Bold" HorizontalAlignment="Center"/>
                     <ComboBox x:Name="EntityTypeCombo" ItemsSource="{Binding EntityTypes}" SelectedIndex="0" Margin="0,0,0,10"/>
                     <TextBox x:Name="FilterTextBox" Text="Filtr..." Margin="0,0,0,10"/>
                     <Button Content="Filtrovat" Click="FilterDataClick" Margin="0,0,0,10"/>
@@ -80,7 +80,7 @@
                         <TextBlock x:Name="TeamBScore" Text="0" Grid.Row="0" Grid.Column="3" Foreground="#FFD700" FontSize="48" FontWeight="Bold" Margin="20,0"/>
 
                         <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="20,0">
-                            <TextBlock Text="20:00" Foreground="Red" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TextTime" Text="20:00" Foreground="Red" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="TextPeriod" Text="1st" Foreground="Black" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
                         </StackPanel>
 
@@ -182,6 +182,10 @@
             <Border Grid.Column="2">
                 <StackPanel>
                     <TextBlock Text="Statistiky hráčů" FontWeight="Bold" HorizontalAlignment="Center" Foreground="RoyalBlue" Margin="2"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <RadioButton x:Name="HomeStatsRadio" Content="Domácí" GroupName="TeamStatsSwitch" IsChecked="True" Checked="TeamStatsChecked"/>
+                        <RadioButton x:Name="AwayStatsRadio" Content="Hosté" GroupName="TeamStatsSwitch" Margin="10,0" Checked="TeamStatsChecked"/>
+                    </StackPanel>
                     <ListView x:Name="PlayerStatsListView" Height="Auto" >
                         <ListView.View>
                             <GridView>
