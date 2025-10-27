@@ -5,8 +5,201 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:semSimulatorHokejovychTurnajuTrejbal"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Simulátor Hokejových zápasů" Height="800" Width="1200"
+        TextElement.Foreground="WhiteSmoke"
+        WindowStartupLocation="CenterScreen">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
+        <Menu Grid.Row="0">
+            <MenuItem Header="Soubor">
+                <MenuItem Header="Uložit data" Click="SaveDataClick"/>
+                <MenuItem Header="Načíst data" Click="LoadDataClick"/>
+                <Separator/>
+                <MenuItem Header="Konec" Click="ExitClick"/>
+            </MenuItem>
+            <MenuItem Header="Entita">
+                <MenuItem Header="Vytvořit/Editovat" Click="CreateEditEntityClick"/>
+                <MenuItem Header="Automatické vytvoření turnaje" Click="AutoCreateTournamentClick"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Výpis dat" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <ComboBox x:Name="EntityTypeCombo" ItemsSource="{Binding EntityTypes}" SelectedIndex="0" Margin="0,0,0,10"/>
+                    <TextBox x:Name="FilterTextBox" Text="Filtr..." Margin="0,0,0,10"/>
+                    <Button Content="Filtrovat" Click="FilterDataClick" Margin="0,0,0,10"/>
+                    <ListView x:Name="DataListView" Height="600">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding Id}"/>
+                                <GridViewColumn Header="Název" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" CornerRadius="8" Margin="10" Padding="10" BorderBrush="Gray" BorderThickness="4">
+                    <Viewbox>    
+                        <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="HOME" Grid.Row="0" Grid.Column="0" Foreground="Black" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="AWAY" Grid.Row="0" Grid.Column="4" Foreground="Black" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                        <TextBlock x:Name="TeamAScore" Text="0" Grid.Row="0" Grid.Column="1" Foreground="#FFD700" FontSize="48" FontWeight="Bold" Margin="20,0"/>
+                        <TextBlock x:Name="TeamBScore" Text="0" Grid.Row="0" Grid.Column="3" Foreground="#FFD700" FontSize="48" FontWeight="Bold" Margin="20,0"/>
+
+                        <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="20,0">
+                            <TextBlock Text="20:00" Foreground="Red" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TextPeriod" Text="1st" Foreground="Black" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="SHOTS" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TextTeamAShots" Text="0" Grid.Row="1" Grid.Column="1" Foreground="Black" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,5"/>
+                        <TextBlock x:Name="TextTeamBShots" Text="0" Grid.Row="1" Grid.Column="3" Foreground="Black" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,5"/>
+                        <TextBlock Grid.Row="1" Grid.Column="4" Text="SHOTS" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Viewbox>
+                </Border>
+
+                <DockPanel Grid.Row="1" HorizontalAlignment="Center" Margin="1">
+                    <Button Click="StartSimulationClick" ToolTip="Začít Simulaci">
+                        <Viewbox Width="16" Height="16">
+                            <Path Fill="DimGray" Data="M 0,0 L 0,12 L 10,6 Z" Margin="1"/>
+                        </Viewbox>
+                    </Button>
+                    <Button Click="StopSimulationClick" ToolTip="Zastavit Simulaci">
+                        <Viewbox Width="16" Height="16">
+                            <Path Fill="DimGray" Data="M 0,0 H 12 V 12 H 0 Z" Margin="3" />
+                        </Viewbox>
+                    </Button>
+                    <Button Click="SkipSimulationClick" ToolTip="Přeskočit simulaci">
+                        <Viewbox Width="16" Height="16" >
+                            <Path Fill="DimGray" Data="M 0,0 V 12 L 7,6 Z M 8,0 V 12 L 15,6 Z" Margin="1" />
+                        </Viewbox>
+                    </Button>
+                </DockPanel>
+                <Border Grid.Row="2" CornerRadius="8" Margin="10">
+                    <Viewbox>
+                    <Canvas x:Name="RinkCanvas" Background="Transparent" Width="400" Height="700" >
+
+                        <!-- Rink Outline -->
+                        <Rectangle Width="400" Height="700" Stroke="Black" StrokeThickness="8" RadiusX="80" RadiusY="80" Panel.ZIndex="2"/>
+
+                        <!-- Goal Lines -->
+                        <Line X1="5" Y1="70" X2="395" Y2="70" Stroke="#F85D59" StrokeThickness="8" Panel.ZIndex="1"/>
+                        <Line X1="5" Y1="630" X2="395" Y2="630" Stroke="#F85D59" StrokeThickness="8" Panel.ZIndex="1"/>
+
+                        <!-- Goal Creases -->
+                        <Path Stroke="#F85D59" StrokeThickness="1" Fill="#B0E0E6">
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathFigure StartPoint="160,70">
+                                        <ArcSegment Point="240,70" Size="40,40" SweepDirection="Counterclockwise"/>
+                                    </PathFigure>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
+                        <Path Stroke="#F85D59" StrokeThickness="1" Fill="#B0E0E6">
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathFigure StartPoint="160,630">
+                                        <ArcSegment Point="240,630" Size="40,40" SweepDirection="Clockwise"/>
+                                    </PathFigure>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
+
+                        <!-- Goal Nets -->
+                        <Rectangle Width="60" Height="30" Canvas.Left="170" Canvas.Top="35" Stroke="#F85D59" StrokeThickness="3"/>
+                        <Rectangle Width="60" Height="30" Canvas.Left="170" Canvas.Top="635" Stroke="#F85D59" StrokeThickness="3"/>
+
+                        <!-- Center Line -->
+                        <Line X1="0" Y1="350" X2="400" Y2="350" Stroke="#F85D59" StrokeThickness="8"/>
+
+                        <!-- Blue Lines -->
+                        <Line X1="0" Y1="250" X2="400" Y2="250" Stroke="#2A8ACB" StrokeThickness="8"/>
+                        <Line X1="0" Y1="450" X2="400" Y2="450" Stroke="#2A8ACB" StrokeThickness="8"/>
+
+                        <!-- Center Circle -->
+                        <Ellipse Width="75" Height="75" Canvas.Left="162.5" Canvas.Top="312.5" Stroke="#2A8ACB" StrokeThickness="6"/>
+                        <Ellipse Width="10" Height="10" Canvas.Left="195" Canvas.Top="345" Fill="Red"/>
+
+                        <!-- Faceoff circles -->
+                        <Ellipse Width="65" Height="65" Canvas.Left="75" Canvas.Top="145" Stroke="#F85D59" StrokeThickness="6"/>
+                        <Ellipse Width="10" Height="10" Canvas.Left="102" Canvas.Top="172" Fill="Red"/>
+
+                        <Ellipse Width="65" Height="65" Canvas.Left="275" Canvas.Top="145" Stroke="#F85D59" StrokeThickness="6"/>
+                        <Ellipse Width="10" Height="10" Canvas.Left="302" Canvas.Top="172" Fill="Red"/>
+
+                        <Ellipse Width="65" Height="65" Canvas.Left="75" Canvas.Top="505" Stroke="#F85D59" StrokeThickness="6"/>
+                        <Ellipse Width="10" Height="10" Canvas.Left="102" Canvas.Top="532" Fill="Red"/>
+
+                        <Ellipse Width="65" Height="65" Canvas.Left="275" Canvas.Top="505" Stroke="#F85D59" StrokeThickness="6"/>
+                        <Ellipse Width="10" Height="10" Canvas.Left="302" Canvas.Top="532" Fill="Red"/>
+
+                        <!-- Neutral Zone Dots -->
+                        <Ellipse Width="10" Height="10" Canvas.Left="95" Canvas.Top="270" Fill="Red"/>
+                        <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="270" Fill="Red"/>
+                        <Ellipse Width="10" Height="10" Canvas.Left="95" Canvas.Top="420" Fill="Red"/>
+                        <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="420" Fill="Red"/>
+
+                    </Canvas>
+                </Viewbox>
+            </Border>
+            </Grid>
+
+            <Border Grid.Column="2">
+                <StackPanel>
+                    <TextBlock Text="Statistiky hráčů" FontWeight="Bold" HorizontalAlignment="Center" Foreground="RoyalBlue" Margin="2"/>
+                    <ListView x:Name="PlayerStatsListView" Height="Auto" >
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Hráč" Width="150" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Góly" Width="75" DisplayMemberBinding="{Binding Goals}"/>
+                                <GridViewColumn Header="Asistence" Width="75" DisplayMemberBinding="{Binding Assists}"/>
+                                <GridViewColumn Header="Střely" Width="75" DisplayMemberBinding="{Binding Shots}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <StatusBar Grid.Row="2">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="Načítání..."/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

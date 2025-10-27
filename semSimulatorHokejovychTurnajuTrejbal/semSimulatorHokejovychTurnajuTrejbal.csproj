@@ -8,4 +8,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="LiteDB.Async" Version="0.1.8" />
+  </ItemGroup>
+
 </Project>
