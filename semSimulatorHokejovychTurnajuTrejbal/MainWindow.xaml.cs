@@ -1,6 +1,7 @@
 ﻿using LiteDB.Async;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,10 +20,10 @@ namespace semSimulatorHokejovychTurnajuTrejbal
     /// </summary>
     public partial class MainWindow : Window {
         private LiteDatabaseAsync _db;
-        public ObservableCollection<string> EntityTypes { get; } = new() { "Turnaj", "Tým", "Hráč" };
-        private List<Tournament> Tournaments = new();
-        private List<Team> Teams = new();
-        private List<Player> Players = new();
+        public ObservableCollection<string> EntityTypes { get; } = new() { "Hráč", "Tým", "Turnaj" };
+        private ObservableCollection<Tournament> Tournaments = new();
+        private ObservableCollection<Team> Teams = new();
+        private ObservableCollection<Player> Players = new();
 
         private DispatcherTimer _simulationTimer;
         private bool _isSimulating = false;
@@ -32,13 +33,13 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         public MainWindow() {
             InitializeComponent();
             this.DataContext = this;
-            _db = new("Filename=HockeyDate.db;");
+            _db = new("Filename=HockeyDatabase.db");
             StatusText.Text = "Připraveno";
             _simulationTimer = new DispatcherTimer();
             _simulationTimer.Interval = TimeSpan.FromSeconds(1); // 1s = 1 minuta
             _simulationTimer.Tick += SimulationTimer_Tick;
         }
-        private void SimulationTimer_Tick(object sender, EventArgs e) {
+        private void SimulationTimer_Tick(object? sender, EventArgs e) {
             _currentMinute--;
             TextTime.Text = $"{_currentMinute.ToString():00}:00";
             if (_currentMinute <= 0) {
@@ -57,20 +58,61 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             }
         }
 
-        private void SaveDataClick(object sender, RoutedEventArgs e) {
-
+        private async Task LoadDataAsync() {
+            var tournamentsCol = _db.GetCollection<Tournament>("tournaments");
+            Tournaments = new ObservableCollection<Tournament>((await tournamentsCol.FindAllAsync()).ToList());
+            var teamsCol = _db.GetCollection<Team>("teams");
+            Teams = new ObservableCollection<Team>((await teamsCol.FindAllAsync()).ToList());
+            var playersCol = _db.GetCollection<Player>("players");
+            Players = new ObservableCollection<Player>((await playersCol.FindAllAsync()).ToList());
+            UpdateDataList();
         }
 
-        private void LoadDataClick(object sender, RoutedEventArgs e) {
-
+        private async Task SaveDataAsync() {
+            try {
+                StatusText.Text = "Ukládání…";
+                await Task.Run(async () =>
+                {
+                    await Task.WhenAll(
+                        _db.GetCollection<Tournament>("tournaments").UpsertAsync(Tournaments),
+                        _db.GetCollection<Team>("teams").UpsertAsync(Teams),
+                        _db.GetCollection<Player>("players").UpsertAsync(Players)
+                    );
+                });
+                StatusText.Text = "Data uložena.";
+            } catch (Exception ex){
+                MessageBox.Show($"Chyba při ukládání: {ex.Message}");
+            }
         }
 
-        private void ExitClick(object sender, RoutedEventArgs e) {
+        private void UpdateDataList() {
+            string? selectedType = EntityTypeCombo.SelectedItem as string;
+            string filter = FilterTextBox.Text.ToLower();
+
+            if (selectedType == "Turnaj")
+                DataListView.ItemsSource = Tournaments.Where(t => t.Title.ToLower().Contains(filter)).Select(t => new { Id = t.Id, Name = t.Title });
+            else if (selectedType == "Tým")
+                DataListView.ItemsSource = Teams.Where(t => t.Name.ToLower().Contains(filter)).Select(t => new { Id = t.Id, Name = t.Name });
+            else if (selectedType == "Hráč")
+                DataListView.ItemsSource = Players.Where(p => p.FullName.ToLower().Contains(filter)).Select(p => new { Id = p.Id, Name = p.FullName });
+        }
+
+
+        private async void SaveDataClick(object sender, RoutedEventArgs e) {
+            await SaveDataAsync();
+        }
+
+        private async void LoadDataClick(object sender, RoutedEventArgs e) {
+           await LoadDataAsync();
+        }
+
+        private async void ExitClick(object sender, RoutedEventArgs e) {
+            await SaveDataAsync();
             Application.Current.Shutdown();
         }
 
         private void CreateEditEntityClick(object sender, RoutedEventArgs e) {
-
+            ShowEntityForm(EntityTypeCombo.SelectedItem.ToString() ?? "");
         }
 
         private void AutoCreateTournamentClick(object sender, RoutedEventArgs e){
@@ -92,7 +134,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         }
 
         private void FilterDataClick(object sender, RoutedEventArgs e) {
-
+            UpdateDataList();
         }
 
         private void TeamStatsChecked(object sender, RoutedEventArgs e) {
@@ -102,5 +144,9 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                 //PlayerStatsListView.ItemsSource = awayTeamStats;
             }
         }
+
+        private void ShowEntityForm(string entityType) { }
+        
+
     }
 }
