@@ -71,14 +71,11 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         private async Task SaveDataAsync() {
             try {
                 StatusText.Text = "Ukládání…";
-                await Task.Run(async () =>
-                {
                     await Task.WhenAll(
                         _db.GetCollection<Tournament>("tournaments").UpsertAsync(Tournaments),
                         _db.GetCollection<Team>("teams").UpsertAsync(Teams),
                         _db.GetCollection<Player>("players").UpsertAsync(Players)
                     );
-                });
                 StatusText.Text = "Data uložena.";
             } catch (Exception ex){
                 MessageBox.Show($"Chyba při ukládání: {ex.Message}");

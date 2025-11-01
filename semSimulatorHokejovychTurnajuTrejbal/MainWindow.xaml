@@ -38,8 +38,9 @@
             <Border Grid.Column="0">
                 <StackPanel Margin="10">
                     <TextBlock Text="Výpis dat" Foreground="RoyalBlue" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <ComboBox x:Name="EntityTypeCombo" ItemsSource="{Binding EntityTypes}" SelectedIndex="0" Margin="0,0,0,10"/>
-                    <TextBox x:Name="FilterTextBox" Margin="0,0,0,10"/>
+                    <ComboBox x:Name="EntityTypeCombo" ItemsSource="{Binding EntityTypes}" SelectedIndex="0"/>
+                    <Button Content="Vytvořit" Click="CreateEditEntityClick" Margin="0,0,0,10"/>
+                    <TextBox x:Name="FilterTextBox"/>
                     <Button Content="Filtrovat" Click="FilterDataClick" Margin="0,0,0,10"/>
                     <ListView x:Name="DataListView" Height="600">
                         <ListView.View>
