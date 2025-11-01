@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace semSimulatorHokejovychTurnajuTrejbal
 {
-    public enum Position { C, LW, RW, LD, RD}
+    public enum Position { C, LW, RW, LD, RD, G}
     public enum Role { Playmaker, Sniper, TwoWay, Offensive, Defensive }
     public sealed class SkaterStats {
         public int Goals { get; private set; } = 0;
@@ -15,14 +15,14 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         public int Points => Goals + Assists;
         public int Shots { get; private set; } = 0;
 
-        public void addGoal() {
+        public void AddGoal() {
             Goals++;
             Shots++;
         }
-        public void addAssist() {
+        public void AddAssist() {
             Assists++;
         }
-        public void addShot() {
+        public void AddShot() {
             Shots++;
         }
         /*možnosti dalšího rozšíření statistik (hity(záleží na výšce a váze), čas na ledě(podle hodnocení), 
@@ -34,35 +34,35 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         public double SavePercentage => Saves + GoalsAgainst == 0 ? 100.0 : (double)Saves / (Saves + GoalsAgainst) * 100;
         public int Shutouts { get; private set; } = 0;
 
-        public void addSave() {
+        public void AddSave() {
             Saves++;
         }
-        public void addGoalAgainst() {
+        public void AddGoalAgainst() {
             GoalsAgainst++;
         }
-        public void addShutout() {
+        public void AddShutout() {
             Shutouts++;
         }
     }
     public abstract class Player {
         public int Id { get; init; }
-        public required string FullName { get; init; }
-        public int Number { get; init; }
+        public string FullName { get; set; }
+        public int Number { get; set; }
 
     }
     class Skater : Player {
         public Position Position { get; set; }
         public Role Role { get; set; }
-        public int Shooting { get; init; }
-        public int Passing { get; init; }
-        public int Defending { get; init; }
-        public int Skating { get; init; }
+        public int Shooting { get; set; }
+        public int Passing { get; set; }
+        public int Defending { get; set; }
+        public int Skating { get; set; }
         public int Overall => (Shooting + Passing + Defending + Skating) / 4;
         public SkaterStats Stats { get; set; }= new();
-        public static List<Role> getValidRoles(Position selectedPosition) {
-            return Enum.GetValues<Role>().Where(role => isForPosition(role, selectedPosition)).ToList();
+        public static List<Role> GetValidRoles(Position selectedPosition) {
+            return Enum.GetValues<Role>().Where(role => IsForPosition(role, selectedPosition)).ToList();
         }
-        public static bool isForPosition(Role role, Position position) {
+        public static bool IsForPosition(Role role, Position position) {
             switch (position) {
                 case Position.C:
                 case Position.LW:
@@ -77,7 +77,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         }
     }
     class Goalie : Player {
-        public int Overall { get; init; }
+        public int Overall { get; set; }
         public GoalieStats Stats { get; set; } = new();
     }
 }

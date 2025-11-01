@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace semSimulatorHokejovychTurnajuTrejbal {
     class Tournament {
-        public int Id { get; set; }
+        public int Id { get; init; }
         public required string Title { get; set; }
         public int MatchCount { get; set; }
         public required List<Team> Teams { get; set; }

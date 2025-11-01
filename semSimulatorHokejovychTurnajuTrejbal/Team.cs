@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 
 namespace semSimulatorHokejovychTurnajuTrejbal {
     class Team {
-        public int Id { get; set; }
+        public int Id { get; init; }
         public required string Name { get; set; }
-        public int Wins { get; set; }
-        public int Losses { get; set; }
+        public int Wins { get; private set; } = 0;
+        public int Losses { get; private set; } = 0;
         public required List<Player> Players { get; set; }
+
+        public void AddWin() {
+            Wins++;
+        }
+        public void AddLoss() {
+            Losses++;
+        }
     }
 }
