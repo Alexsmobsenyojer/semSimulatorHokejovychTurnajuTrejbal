@@ -40,10 +40,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             _db = new("Filename=HockeyDatabase.db");
             StatusText.Text = "Připraveno";
             _simulationTimer = new DispatcherTimer();
-            _simulationTimer.Interval = TimeSpan.FromSeconds(1); // 1s = 1 minuta
             _simulationTimer.Tick += SimulationTimer_Tick;
             EntityTypeCombo.SelectionChanged += (_, __) => UpdateDataList();
-            _simulator = new Simulation(this);
         }
         private void SimulationTimer_Tick(object? sender, EventArgs e) {
             _currentMinute--;
@@ -57,6 +55,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                     _isSimulating = false;
                     StatusText.Text = "Zápas skončil.";
                     match!.wasPlayed = true;
+                    MatchesListBox.IsEnabled = true;
                 } else {
                     if (_currentPeriod == 1) TextPeriod.Text = _currentPeriod.ToString()+"st";
                     if (_currentPeriod == 2) TextPeriod.Text = _currentPeriod.ToString()+"nd";
@@ -65,7 +64,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                 }
             }
         }
-        // TODO: změnit na načítání a ukládání ze souboru OpeniFileDialog/SaveFileDialog
+        // TODO: změnit na načítání a ukládání ze souboru OpeniFileDialog/SaveFileDialog z JSONU ??
         private async Task LoadDataAsync() {
             Tournaments = new ObservableCollection<Tournament>((await TournamentsCol.FindAllAsync()).ToList());
             Teams = new ObservableCollection<Team>((await TeamsCol.FindAllAsync()).ToList());
@@ -174,6 +173,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                     TextTeamB.Text = match.AwayTeam.Name;
                     TextScoreA.Text = match.HomeScore.ToString();
                     TextScoreB.Text = match.AwayScore.ToString();
+
+                    _simulator = new Simulation(match, RinkCanvas);
                     if (!match.wasPlayed) {
                         _currentMinute = 20;
                         _currentPeriod = 1;
@@ -190,15 +191,12 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             }
         }
 
-        private void AutoCreateTournamentClick(object sender, RoutedEventArgs e){
-
-
-        }
-
         private void StartSimulationClick(object sender, RoutedEventArgs e){
+            _simulationTimer.Interval = TimeSpan.FromSeconds(1);
             _simulationTimer.Start();
             _isSimulating = true;
             _simulator.StartMatch();
+            MatchesListBox.IsEnabled = false;
         }
 
         private void StopSimulationClick(object sender, RoutedEventArgs e) {
@@ -207,7 +205,11 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         }
 
         private void SkipSimulationClick(object sender, RoutedEventArgs e) {
-
+            _simulationTimer.Interval = TimeSpan.FromMilliseconds(10);
+            _simulationTimer.Start();
+            _isSimulating = true;
+            _simulator.StartMatch();
+            MatchesListBox.IsEnabled = false;
         }
 
         private void FilterDataClick(object sender, RoutedEventArgs e) {

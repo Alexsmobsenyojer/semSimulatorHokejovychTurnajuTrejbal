@@ -23,7 +23,6 @@
                 <MenuItem Header="Konec" Click="ExitClick"/>
             </MenuItem>
             <MenuItem Header="Možnosti">
-                <MenuItem Header="Automatické vytvoření turnaje" Click="AutoCreateTournamentClick"/>
             </MenuItem>
         </Menu>
 
