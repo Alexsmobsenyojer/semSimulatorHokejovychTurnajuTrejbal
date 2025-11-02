@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace semSimulatorHokejovychTurnajuTrejbal {
-    class Team {
+    public class Team {
         public int Id { get; init; }
         public required string Name { get; set; }
         public int Wins { get; private set; } = 0;

@@ -1,6 +1,7 @@
 ﻿using LiteDB.Async;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,9 +31,9 @@ namespace semSimulatorHokejovychTurnajuTrejbal
 
         private DispatcherTimer _simulationTimer;
         private bool _isSimulating = false;
-        private int _currentMinute = 20, _currentPeriod = 1;
-        private Team? _teamA, _teamB;
-        private int _scoreA = 0, _scoreB = 0, _shotsA = 0, _shotsB = 0;
+        private int _currentMinute, _currentPeriod;
+        public Match? match;
+        private Simulation _simulator;
         public MainWindow() {
             InitializeComponent();
             this.DataContext = this;
@@ -42,9 +43,11 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             _simulationTimer.Interval = TimeSpan.FromSeconds(1); // 1s = 1 minuta
             _simulationTimer.Tick += SimulationTimer_Tick;
             EntityTypeCombo.SelectionChanged += (_, __) => UpdateDataList();
+            _simulator = new Simulation(this);
         }
         private void SimulationTimer_Tick(object? sender, EventArgs e) {
             _currentMinute--;
+            _simulator.SimulateMinute();
             TextTime.Text = $"{_currentMinute.ToString():00}:00";
             if (_currentMinute <= 0) {
                 _simulationTimer.Stop();
@@ -53,6 +56,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                 if (_currentPeriod > 3) {
                     _isSimulating = false;
                     StatusText.Text = "Zápas skončil.";
+                    match!.wasPlayed = true;
                 } else {
                     if (_currentPeriod == 1) TextPeriod.Text = _currentPeriod.ToString()+"st";
                     if (_currentPeriod == 2) TextPeriod.Text = _currentPeriod.ToString()+"nd";
@@ -61,8 +65,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                 }
             }
         }
-
-        private async Task LoadDataAsync() {         
+        // TODO: změnit na načítání a ukládání ze souboru OpeniFileDialog/SaveFileDialog
+        private async Task LoadDataAsync() {
             Tournaments = new ObservableCollection<Tournament>((await TournamentsCol.FindAllAsync()).ToList());
             Teams = new ObservableCollection<Team>((await TeamsCol.FindAllAsync()).ToList());
             Players = new ObservableCollection<Player>((await PlayersCol.FindAllAsync()).ToList());
@@ -94,6 +98,16 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             };
         }
 
+        private void UpdatePlayerStats() {
+            if (match == null) return;
+            var team = HomeStatsRadio.IsChecked == true ? match.HomeTeam : match.AwayTeam;
+            SkatersStatsListView.ItemsSource = team.Players.OfType<Skater>()
+                .Select(s => new { s.FullName, s.Stats.Goals, s.Stats.Assists, s.Stats.Shots})
+                .ToList();
+            GoaliesStatsListView.ItemsSource = team.Players.OfType<Goalie>()
+                .Select(g => new { g.FullName, g.Stats.Saves, g.Stats.GoalsAgainst, g.Stats.SavePercentage})
+                .ToList();
+        }
 
         private async void SaveDataClick(object sender, RoutedEventArgs e) {
             await SaveDataAsync();
@@ -138,13 +152,53 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             }
         }
 
+        private void DataListView_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (DataListView.SelectedItem != null) {
+                dynamic selected = DataListView.SelectedItem;
+                int id = selected.Id;
+                string? selEntity = EntityTypeCombo.SelectedItem as string;
+                if (selEntity == "Turnaj") {
+                    var tournament = Tournaments.FirstOrDefault(t => t.Id == id);
+                    if (tournament != null) {
+                        MatchesListBox.ItemsSource = tournament.Matches;
+                    }
+                } 
+            }
+        }
+
+        private void MatchesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (MatchesListBox.SelectedItem != null) {
+                match = MatchesListBox.SelectedItem as Match;
+                if (match != null) {
+                    TextTeamA.Text = match.HomeTeam.Name;
+                    TextTeamB.Text = match.AwayTeam.Name;
+                    TextScoreA.Text = match.HomeScore.ToString();
+                    TextScoreB.Text = match.AwayScore.ToString();
+                    if (!match.wasPlayed) {
+                        _currentMinute = 20;
+                        _currentPeriod = 1;
+                        TextPeriod.Text = "1st";
+                        TextTime.Text = "20:00";
+                        BtnStartSim.IsEnabled = BtnStopSim.IsEnabled = BtnSkipSim.IsEnabled = true;
+                    } else {
+                        TextPeriod.Text = "Zápas odsimulován";
+                        TextTime.Text = "00:00";
+                        BtnStartSim.IsEnabled = BtnStopSim.IsEnabled = BtnSkipSim.IsEnabled = false;
+                    }
+                }
+                UpdatePlayerStats();
+            }
+        }
+
         private void AutoCreateTournamentClick(object sender, RoutedEventArgs e){
+
 
         }
 
         private void StartSimulationClick(object sender, RoutedEventArgs e){
             _simulationTimer.Start();
             _isSimulating = true;
+            _simulator.StartMatch();
         }
 
         private void StopSimulationClick(object sender, RoutedEventArgs e) {
@@ -161,11 +215,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         }
 
         private void TeamStatsChecked(object sender, RoutedEventArgs e) {
-            if (HomeStatsRadio.IsChecked == true) {
-                //PlayerStatsListView.ItemsSource = homeTeamStats;
-            } else {
-                //PlayerStatsListView.ItemsSource = awayTeamStats;
-            }
+            UpdatePlayerStats();
         }
 
         private void ShowEntityForm(string entityType, object entityToEdit = null) {
@@ -298,6 +348,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                                 player = new Skater();
                         }
                         player.FullName = nameBox.Text.Trim();
+                        if (string.IsNullOrWhiteSpace(player.FullName))
+                            throw new Exception("Zadejte jméno hráče.");
                         player.Number = int.Parse(numberBox.Text);
 
                         if (player is Skater s) {
@@ -330,10 +382,11 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                 var team = (Team)(entityToEdit ?? new Team { Name = "Nový Tým", Players = new() });
 
                 var nameBox = new TextBox { Text = team.Name };
-                var playersListBox = new ListBox {ItemsSource = Players,SelectionMode = SelectionMode.Multiple,DisplayMemberPath = "FullName",Height = 180};
+                var playersListBox = new ListBox { ItemsSource = Players, SelectionMode = SelectionMode.Multiple, DisplayMemberPath = "FullName", Height = 180};
                 foreach (var p in team.Players) {
-                    if (Players.Contains(p))
-                        playersListBox.SelectedItems.Add(p);
+                    var teamPlayer = Players.FirstOrDefault(x => x.Id == p.Id);
+                    if (teamPlayer!=null)
+                        playersListBox.SelectedItems.Add(teamPlayer);
                 }
                 AddLabel("Název týmu:", nameBox);
                 AddLabel("Výhry / Prohry:", new TextBlock { Text = $"{team.Wins} / {team.Losses}" });
@@ -343,7 +396,10 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                 {
                     try {
                         team.Name = nameBox.Text.Trim();
+                        if (string.IsNullOrWhiteSpace(team.Name))
+                            throw new Exception("Zadejte název týmu.");
                         team.Players = playersListBox.SelectedItems.Cast<Player>().ToList();
+                        //TODO: Player bool isAssignedToTeam false, neukazovat v seznamu hračů při tvorbě týmu
                         if (!isEdit) {
                             await TeamsCol.InsertAsync(team);
                             Teams.Add(team);
@@ -364,25 +420,41 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             void BuildTournamentForm() {
                 var t = (Tournament)(entityToEdit ?? new Tournament {
                     Title = "Nový Turnaj",
-                    MatchCount = 0,
                     Teams = new()
                 });
 
                 var titleBox = new TextBox { Text = t.Title };
-                var countBox = new TextBox { Text = t.MatchCount.ToString() };
+                var teamsListBox = new ListBox { ItemsSource = Teams, SelectionMode = SelectionMode.Multiple, DisplayMemberPath = "Name", Height = 180 };
+                foreach (var team in t.Teams) {
+                    var tournTeam = Teams.FirstOrDefault(x => x.Id == team.Id);
+                    if (tournTeam != null)
+                        teamsListBox.SelectedItems.Add(tournTeam);
+                }
 
                 AddLabel("Název turnaje:", titleBox);
-                AddLabel("Počet zápasů:", countBox);
-                AddLabel("Týmy:", new ListBox {
-                    ItemsSource = Teams,
-                    DisplayMemberPath = "Name",
-                    Height = 180
-                });
+                AddLabel("Týmy:", teamsListBox);
 
                 saveBtn.Click += async (_, __) => {
                     try {
                         t.Title = titleBox.Text.Trim();
-                        if (int.TryParse(countBox.Text, out int c)) t.MatchCount = c;
+                        if (string.IsNullOrWhiteSpace(t.Title))
+                            throw new Exception("Zadejte název turnaje.");
+                        var selectedTeams = teamsListBox.SelectedItems.Cast<Team>().ToList();
+                        if (selectedTeams.Count < 2)
+                            throw new Exception("Vyberte alespoň 2 týmy.");
+                        t.Teams = selectedTeams;
+                        //generace zapasu
+                        t.Matches.Clear();
+                        int matchId = 1;
+                        for (int i = 0; i < t.Teams.Count; i++) {
+                            for (int j = i + 1; j < t.Teams.Count; j++) {
+                                t.Matches.Add(new Match {
+                                    Id = matchId++,
+                                    HomeTeam = t.Teams[i],
+                                    AwayTeam = t.Teams[j]
+                                });
+                            }
+                        }
 
                         if (!isEdit) {
                             await TournamentsCol.InsertAsync(t);
@@ -392,7 +464,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                         }
 
                         UpdateDataList();
-                        StatusText.Text = $"Turnaj '{t.Title}' uložen.";
+                        StatusText.Text = $"Turnaj '{t.Title}' uložen ({t.Matches.Count} zápasů).";
                         window.Close();
                     } catch (Exception ex) {
                         MessageBox.Show($"Chyba: {ex.Message}", "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);

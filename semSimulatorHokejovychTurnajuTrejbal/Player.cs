@@ -50,7 +50,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         public int Number { get; set; }
 
     }
-    class Skater : Player {
+    public class Skater : Player {
         public Position Position { get; set; }
         public Role Role { get; set; }
         public int Shooting { get; set; }
@@ -76,7 +76,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             }
         }
     }
-    class Goalie : Player {
+    public class Goalie : Player {
         public int Overall { get; set; }
         public GoalieStats Stats { get; set; } = new();
     }
