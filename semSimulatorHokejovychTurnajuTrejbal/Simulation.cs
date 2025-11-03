@@ -13,6 +13,20 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace semSimulatorHokejovychTurnajuTrejbal {
+    public class GoalEvent {
+        public Skater Scorer { get;}
+        public Skater? Assist1 { get;}
+        public Skater? Assist2 { get;}
+        public int NewScore { get;}
+        public bool IsHomeGoal { get;}
+        public GoalEvent(Skater scorer, Skater? assist1, Skater? assist2, int newScore,  bool isHomeGoal) {
+            Scorer = scorer;
+            Assist1 = assist1;
+            Assist2 = assist2;
+            NewScore = newScore;
+            IsHomeGoal = isHomeGoal;
+        }
+    }
     partial class Simulation{
         private readonly Match _match;
         private readonly Random _rand = new();
@@ -27,6 +41,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         private Skater awayC, awayLW, awayRW, awayLD, awayRD;
 
         public event Action<Match>? MatchUpdated;
+        public event Action<GoalEvent>? GoalScored;
         public event Action<List<Player>>? HomeStatsUpdated;
         public event Action<List<Player>>? AwayStatsUpdated;
         public event Action<Player, double, double, Brush>? DrawPlayerRequested;
@@ -56,13 +71,12 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
             awayGoalie = PickStartingGoalie(_awayPlayers);
 
             ChangeLines();
-            RaiseMatchUpdated();
+            StartMatchUpdated();
         }
 
         public void SimulateMinute() {
             ChangeLines();
             SimulateEvents();
-            RaiseMatchUpdated();
             RaiseStatsUpdated();
         }
         public void RefreshStats() {
@@ -120,9 +134,13 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
 
         private void SimulateEvents() {
             //TODO
+            awayC.Stats.AddGoal();
+            awayLW.Stats.AddAssist();
+            _match.AwayScore++;
+            GoalScored?.Invoke(new GoalEvent( awayC, awayLW, null, _match.AwayScore, false));
         }
 
-        private void RaiseMatchUpdated() => MatchUpdated?.Invoke(_match);
+        private void StartMatchUpdated() => MatchUpdated?.Invoke(_match);
         private void RaiseStatsUpdated() {
             HomeStatsUpdated?.Invoke(_homePlayers);
             AwayStatsUpdated?.Invoke(_awayPlayers);

@@ -173,7 +173,18 @@
                         <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="270" Fill="Red"/>
                         <Ellipse Width="10" Height="10" Canvas.Left="95" Canvas.Top="420" Fill="Red"/>
                         <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="420" Fill="Red"/>
-
+                        <Border x:Name="GoalPopup" Background="#CC000000" Canvas.Left="115" Canvas.Top="178" CornerRadius="12" Padding="20" Margin="0,80,0,0" Panel.ZIndex="3" Opacity="100">
+                            <Border.Effect>
+                                <DropShadowEffect Color="blue" ShadowDepth="3" BlurRadius="30"/>
+                            </Border.Effect>
+                            <StackPanel TextBlock.Foreground="White" TextBlock.FontSize="18" TextBlock.FontWeight="Bold">
+                                <TextBlock x:Name="GoalText" Text="GÓL!" FontSize="36" HorizontalAlignment="Center" Foreground="#FFD700"/>
+                                <TextBlock x:Name="ScorerText" Text="Tencodalgol (9)" HorizontalAlignment="Center" Margin="0,5"/>
+                                <TextBlock Text="Asistence:" HorizontalAlignment="Center" FontStyle="Italic" FontSize="16"/>
+                                <TextBlock x:Name="Assist1Text" Text="None" HorizontalAlignment="Center" FontStyle="Italic" FontSize="16"/>
+                                <TextBlock x:Name="Assist2Text" Text="Playernone" HorizontalAlignment="Center" FontStyle="Italic" FontSize="16"/>
+                            </StackPanel>
+                        </Border>
                     </Canvas>
                 </Viewbox>
             </Border>
@@ -202,7 +213,7 @@
                                 <GridViewColumn Header="Hráč" Width="150" DisplayMemberBinding="{Binding FullName}"/>
                                 <GridViewColumn Header="Zásahy" Width="75" DisplayMemberBinding="{Binding Saves}"/>
                                 <GridViewColumn Header="Obdržené góly" Width="75" DisplayMemberBinding="{Binding GoalsAgainst}"/>
-                                <GridViewColumn Header="Úspěšnost zákroků" Width="75" DisplayMemberBinding="{Binding SavePercentage}"/>
+                                <!--<GridViewColumn Header="Úspěšnost zákroků" Width="75" DisplayMemberBinding="{Binding SavePercentage}"/>-->
                             </GridView>
                         </ListView.View>
                     </ListView>

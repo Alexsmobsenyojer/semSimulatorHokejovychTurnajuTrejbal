@@ -12,6 +12,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -35,7 +36,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         private DispatcherTimer _simulationTimer;
         private bool _isSimulating = false;
         private int _currentMinute, _currentPeriod;
-        //public Match? match;
         private Simulation _sim;
         public MainWindow() {
             InitializeComponent();
@@ -176,7 +176,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                     var tournament = Tournaments.FirstOrDefault(t => t.Id == id);
                     if (tournament != null) {
                         MatchesListBox.ItemsSource = tournament.Matches;
-                        //for each match, show team name vs team name
                     }
                 } 
             }
@@ -187,24 +186,42 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             
             _sim = new Simulation(match, Players, Teams);
             _sim.MatchUpdated += OnMatchUpdated;
+            _sim.GoalScored += OnGoalScored;
             _sim.HomeStatsUpdated += players => UpdateStats(players, true);
             _sim.AwayStatsUpdated += players => UpdateStats(players, false);
             _sim.DrawPlayerRequested += DrawPlayer;
             _sim.ClearCanvasRequested += ClearPlayers;
             _sim.StartMatch();
             BtnStartSim.IsEnabled = true;
+            BtnStopSim.IsEnabled = true;
+            BtnSkipSim.IsEnabled = true;
         }
 
         private void OnMatchUpdated(Match m) {
             TextTeamA.Text = Teams.First(t => t.Id == m.HomeTeamId).Name;
             TextTeamB.Text = Teams.First(t => t.Id == m.AwayTeamId).Name;
-            TextScoreA.Text = m.HomeScore.ToString();
-            TextScoreB.Text = m.AwayScore.ToString();
+        }
+
+        private void OnGoalScored(GoalEvent goal) {
+            if(goal.IsHomeGoal)TextScoreA.Text = goal.NewScore.ToString();
+            else TextScoreB.Text = goal.NewScore.ToString();
+
+            ScorerText.Text = $"{goal.Scorer.FullName} ({goal.Scorer.Stats.Goals})";
+            Assist1Text.Text = goal.Assist1?.FullName ?? "Bez asistence";
+            Assist2Text.Text = goal.Assist2?.FullName ?? "";
+            _simulationTimer.Stop();
+            var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.5));
+            var stay = new DoubleAnimation(1, 1, TimeSpan.FromSeconds(3));
+            var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.5));
+            fadeIn.Completed += (_, __) => GoalPopup.BeginAnimation(UIElement.OpacityProperty, stay);
+            stay.Completed += (_, __) => GoalPopup.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+            fadeOut.Completed += (_, __) => _simulationTimer.Start();
+            GoalPopup.BeginAnimation(UIElement.OpacityProperty, fadeIn);
         }
 
         private void UpdateStats(List<Player> players, bool isHome) {
-            if (!isHome && !HomeStatsRadio.IsChecked == true) return;
-            if (isHome && !HomeStatsRadio.IsChecked == true) return;
+            if (isHome && HomeStatsRadio.IsChecked == true) return;
+            if (!isHome && HomeStatsRadio.IsChecked == false) return;
             SkatersStatsListView.ItemsSource = players.OfType<Skater>().Select(s => new { s.FullName, s.Stats.Goals, s.Stats.Assists, s.Stats.Shots }).ToList();
             GoaliesStatsListView.ItemsSource = players.OfType<Goalie>().Select(g => new { g.FullName, g.Stats.Saves, g.Stats.GoalsAgainst, SavePct = g.Stats.SavePercentage.ToString("F2") }).ToList();
         }
@@ -241,10 +258,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
 
         private void StartSimulationClick(object sender, RoutedEventArgs e){
             _simulationTimer.Interval = TimeSpan.FromSeconds(1);
-            _simulationTimer.Start();
-            _isSimulating = true;
-            _sim.StartMatch();
-            MatchesListBox.IsEnabled = false;
+            SimulationStart();
         }
 
         private void StopSimulationClick(object sender, RoutedEventArgs e) {
@@ -254,6 +268,18 @@ namespace semSimulatorHokejovychTurnajuTrejbal
 
         private void SkipSimulationClick(object sender, RoutedEventArgs e) {
             _simulationTimer.Interval = TimeSpan.FromMilliseconds(10);
+            SimulationStart();
+        }
+
+        private void SimulationStart() {
+            if (_sim == null) {
+                MessageBox.Show("Vyberte zápas k simulaci.", "Chyba", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            _currentPeriod = 1;
+            _currentMinute = 20;
+            TextPeriod.Text = "1st";
+            TextTime.Text = "20:00";
             _simulationTimer.Start();
             _isSimulating = true;
             _sim.StartMatch();
@@ -263,18 +289,22 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         private void SimulationTimer_Tick(object? sender, EventArgs e) {
             _currentMinute--;
             TextTime.Text = $"{_currentMinute.ToString():00}:00";
+            _sim.SimulateMinute();
             if (_currentMinute <= 0) {
                 _simulationTimer.Stop();
-                _currentMinute = 20;
-                _currentPeriod++;
-                if (_currentPeriod > 3) {
+                if (_currentPeriod >= 3) {
                     _isSimulating = false;
                     StatusText.Text = "Zápas skončil.";
                     MatchesListBox.IsEnabled = true;
+                    BtnStartSim.IsEnabled = false;
+                    BtnSkipSim.IsEnabled = false;
+                    BtnStopSim.IsEnabled = false;
                 } else {
-                    if (_currentPeriod == 1) TextPeriod.Text = _currentPeriod.ToString() + "st";
-                    if (_currentPeriod == 2) TextPeriod.Text = _currentPeriod.ToString() + "nd";
-                    if (_currentPeriod == 3) TextPeriod.Text = _currentPeriod.ToString() + "rd";
+                    _currentMinute = 20;
+                    _currentPeriod++;
+                    if (_currentPeriod == 1) TextPeriod.Text = "1st";
+                    if (_currentPeriod == 2) TextPeriod.Text = "2nd";
+                    if (_currentPeriod == 3) TextPeriod.Text = "3rd";
                     _simulationTimer.Start();
                 }
             }
