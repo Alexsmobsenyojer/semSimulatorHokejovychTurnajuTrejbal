@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace semSimulatorHokejovychTurnajuTrejbal
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Position { C, LW, RW, LD, RD, G}
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Role { Playmaker, Sniper, TwoWay, Offensive, Defensive }
     public sealed class SkaterStats {
         public int Goals { get; private set; } = 0;
@@ -28,6 +31,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         /*možnosti dalšího rozšíření statistik (hity(záleží na výšce a váze), čas na ledě(podle hodnocení), 
           +- (na ledě při gólu), trestné minuty, )*/
     }
+
     public sealed class GoalieStats {
         public int Saves { get; private set; } = 0;
         public int GoalsAgainst { get; private set; } = 0;
@@ -44,12 +48,17 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             Shutouts++;
         }
     }
+
+    [JsonPolymorphic]
+    [JsonDerivedType(typeof(Goalie), typeDiscriminator: "goalie")]
+    [JsonDerivedType(typeof(Skater), typeDiscriminator: "skater")]
     public abstract class Player {
         public int Id { get; init; }
         public string FullName { get; set; }
         public int Number { get; set; }
 
     }
+   
     public class Skater : Player {
         public Position Position { get; set; }
         public Role Role { get; set; }
@@ -76,6 +85,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             }
         }
     }
+
     public class Goalie : Player {
         public int Overall { get; set; }
         public GoalieStats Stats { get; set; } = new();

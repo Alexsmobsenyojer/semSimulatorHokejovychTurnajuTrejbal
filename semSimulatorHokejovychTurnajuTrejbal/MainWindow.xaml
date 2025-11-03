@@ -23,6 +23,7 @@
                 <MenuItem Header="Konec" Click="ExitClick"/>
             </MenuItem>
             <MenuItem Header="Možnosti">
+                <MenuItem Header="Smazat databázi" Click="DeleteDatabaseClick"/>
             </MenuItem>
         </Menu>
 

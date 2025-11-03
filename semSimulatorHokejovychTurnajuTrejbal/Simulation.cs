@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices.ActiveDirectory;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,93 +13,119 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace semSimulatorHokejovychTurnajuTrejbal {
-    partial class Simulation(Match match, Canvas canvas) {
+    partial class Simulation{
+        private readonly Match _match;
         private readonly Random _rand = new();
+        private Team _homeTeam;
+        private Team _awayTeam;
+        private List<Player> _homePlayers;
+        private List<Player> _awayPlayers;
         private List<Skater> homeCenters, homeLeftWingers, homeRightWingers, homeLeftDefensemen, homeRightDefensemen, 
             awayCenters, awayLeftWingers, awayRightWingers, awayLeftDefensemen, awayRightDefensemen;
         private Goalie homeGoalie, awayGoalie;
+        private Skater homeC, homeLW, homeRW, homeLD, homeRD;
+        private Skater awayC, awayLW, awayRW, awayLD, awayRD;
 
-        private List<Skater> PickSkaters(Team team, short number, Position position) {
-            return team.Players
+        public event Action<Match>? MatchUpdated;
+        public event Action<List<Player>>? HomeStatsUpdated;
+        public event Action<List<Player>>? AwayStatsUpdated;
+        public event Action<Player, double, double, Brush>? DrawPlayerRequested;
+        public event Action? ClearCanvasRequested;
+
+        public Simulation(Match match, IEnumerable<Player> allPlayers, IEnumerable<Team> allTeams) {
+            _match = match;
+            _homeTeam = allTeams.First(t => t.Id == match.HomeTeamId);
+            _awayTeam = allTeams.First(t => t.Id == match.AwayTeamId);
+            _homePlayers = _homeTeam.PlayerIds.Select(id => allPlayers.First(p => p.Id == id)).ToList();
+            _awayPlayers = _awayTeam.PlayerIds.Select(id => allPlayers.First(p => p.Id == id)).ToList();
+        }
+
+        public void StartMatch() {
+            homeCenters = PickSkaters(_homePlayers, Position.C, 4);
+            homeLeftWingers = PickSkaters(_homePlayers, Position.LW, 4);
+            homeRightWingers = PickSkaters(_homePlayers, Position.RW, 4);
+            homeLeftDefensemen = PickSkaters(_homePlayers, Position.LD, 3);
+            homeRightDefensemen = PickSkaters(_homePlayers, Position.RD, 3);
+            homeGoalie = PickStartingGoalie(_homePlayers);
+
+            awayCenters = PickSkaters(_awayPlayers, Position.C, 4);
+            awayLeftWingers = PickSkaters(_awayPlayers, Position.LW, 4);
+            awayRightWingers = PickSkaters(_awayPlayers, Position.RW, 4);
+            awayLeftDefensemen = PickSkaters(_awayPlayers, Position.LD, 3);
+            awayRightDefensemen = PickSkaters(_awayPlayers, Position.RD, 3);
+            awayGoalie = PickStartingGoalie(_awayPlayers);
+
+            ChangeLines();
+            RaiseMatchUpdated();
+        }
+
+        public void SimulateMinute() {
+            ChangeLines();
+            SimulateEvents();
+            RaiseMatchUpdated();
+            RaiseStatsUpdated();
+        }
+        public void RefreshStats() {
+            RaiseStatsUpdated();
+        }
+        private List<Skater> PickSkaters(List<Player> players, Position position, int count) {
+            return players
                 .OfType<Skater>()
                 .Where(Skater => Skater.Position == position)
                 .OrderByDescending(Skater => Skater.Overall)
-                .Take(number)
+                .Take(count)
                 .ToList();
         }
-        private Goalie PickStartingGoalie(Team team) {
-            var goalies = team.Players
+        private Goalie PickStartingGoalie(List<Player> players) {
+            var goalies = players
                 .OfType<Goalie>()
                 .OrderByDescending(g => g.Overall)
                 .Take(2)
                 .ToList();
             return goalies.Count == 1 ? goalies[0] : _rand.NextDouble() < 0.7 ? goalies[0] : goalies[1];
         }
-        private void DrawPlayer(Player player, double centerX, double centerY, Brush fill) {
-            const double radius = 18;
-            const double fontSize = 20;
+        private void ChangeLines() {
+            int fwd = _rand.Next(100) switch { < 40 => 0, < 70 => 1, < 90 => 2, _ => 3 };
+            int def = _rand.Next(100) switch { < 50 => 0, < 80 => 1, _ => 2 };
 
-            var circle = new Ellipse {Width = radius * 2,Height = radius * 2,Fill = fill,
-                Stroke = Brushes.Black,StrokeThickness = 2,Tag = "Player"};
-            var text = new TextBlock {Text = player.Number.ToString(),Foreground = Brushes.White,
-                FontWeight = FontWeights.Bold,FontSize = fontSize,Tag = "Player"};
-            text.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            double textWidth = text.DesiredSize.Width;
-            double textHeight = text.DesiredSize.Height;
-            Canvas.SetLeft(circle, centerX - radius);
-            Canvas.SetTop(circle, centerY - radius);
-            Canvas.SetLeft(text, centerX - textWidth / 2);
-            Canvas.SetTop(text, centerY - textHeight / 2);
-            canvas.Children.Add(circle);
-            canvas.Children.Add(text);
+            homeC = homeCenters[fwd]; homeLW = homeLeftWingers[fwd]; homeRW = homeRightWingers[fwd];
+            homeLD = homeLeftDefensemen[def]; homeRD = homeRightDefensemen[def];
+
+            awayC = awayCenters[fwd]; awayLW = awayLeftWingers[fwd]; awayRW = awayRightWingers[fwd];
+            awayLD = awayLeftDefensemen[def]; awayRD = awayRightDefensemen[def];
+
+            DrawPlayers();
         }
 
-        private void ClearPlayers() {
-            for (int i = canvas.Children.Count - 1; i >= 0; i--) {
-                if (canvas.Children[i] is FrameworkElement el && el.Tag?.ToString() == "Player")
-                    canvas.Children.RemoveAt(i);
-            }
+        private void DrawPlayers() {
+            ClearCanvasRequested?.Invoke();
+
+            Draw(homeGoalie, 200, 600, Brushes.Navy);
+            Draw(awayGoalie, 200, 100, Brushes.Crimson);
+
+            Draw(homeLW, 120, 420, Brushes.Navy);
+            Draw(homeC, 200, 400, Brushes.Navy);
+            Draw(homeRW, 280, 420, Brushes.Navy);
+            Draw(homeLD, 140, 500, Brushes.Navy);
+            Draw(homeRD, 260, 500, Brushes.Navy);
+
+            Draw(awayLW, 120, 280, Brushes.Crimson);
+            Draw(awayC, 200, 300, Brushes.Crimson);
+            Draw(awayRW, 280, 280, Brushes.Crimson);
+            Draw(awayLD, 140, 200, Brushes.Crimson);
+            Draw(awayRD, 260, 200, Brushes.Crimson);
         }
 
-        public void SimulateMinute() {
-            ClearPlayers();
-            DrawPlayer(homeGoalie, 200, 600, Brushes.Navy);
-            DrawPlayer(awayGoalie, 200, 100, Brushes.Crimson);
-            int forwardLine = _rand.Next(100) switch {
-                < 40 => 0,
-                < 70 => 1,
-                < 90 => 2,
-                _ => 3
-            };
-            int defenseLine = _rand.Next(100) switch {
-                < 50 => 0,
-                < 80 => 1,
-                _ => 2
-            };
-            DrawPlayer(homeLeftWingers[forwardLine], 120, 520, Brushes.Navy);
-            DrawPlayer(homeCenters[forwardLine], 200, 540, Brushes.Navy);
-            DrawPlayer(homeRightWingers[forwardLine], 280, 520, Brushes.Navy);
-            DrawPlayer(homeLeftDefensemen[forwardLine], 140, 600, Brushes.Navy);
-            DrawPlayer(homeRightDefensemen[forwardLine], 260, 600, Brushes.Navy);
-            DrawPlayer(awayLeftWingers[forwardLine], 120, 180, Brushes.Crimson);
-            DrawPlayer(awayCenters[forwardLine], 200, 160, Brushes.Crimson);
-            DrawPlayer(awayRightWingers[forwardLine], 280, 180, Brushes.Crimson);
-            DrawPlayer(awayLeftDefensemen[defenseLine], 140, 100, Brushes.Crimson);
-            DrawPlayer(awayRightDefensemen[defenseLine], 260, 100, Brushes.Crimson);
+        private void Draw(Player p, double x, double y, Brush c) => DrawPlayerRequested?.Invoke(p, x, y, c);
+
+        private void SimulateEvents() {
+            //TODO
         }
-        public void StartMatch() {
-            homeCenters = PickSkaters(match.HomeTeam, 4, Position.C);
-            homeLeftWingers = PickSkaters(match.HomeTeam, 4, Position.LW);
-            homeRightWingers = PickSkaters(match.HomeTeam, 4, Position.RW);
-            homeLeftDefensemen = PickSkaters(match.HomeTeam, 3, Position.LD);
-            homeRightDefensemen = PickSkaters(match.HomeTeam, 3, Position.RD);
-            homeGoalie = PickStartingGoalie(match.HomeTeam);
-            awayCenters = PickSkaters(match.AwayTeam, 4, Position.C);
-            awayLeftWingers = PickSkaters(match.AwayTeam, 4, Position.LW);
-            awayRightWingers = PickSkaters(match.AwayTeam, 4, Position.RW);
-            awayLeftDefensemen = PickSkaters(match.AwayTeam, 3, Position.LD);
-            awayRightDefensemen = PickSkaters(match.AwayTeam, 3, Position.RD);
-            awayGoalie = PickStartingGoalie(match.AwayTeam);
+
+        private void RaiseMatchUpdated() => MatchUpdated?.Invoke(_match);
+        private void RaiseStatsUpdated() {
+            HomeStatsUpdated?.Invoke(_homePlayers);
+            AwayStatsUpdated?.Invoke(_awayPlayers);
         }
 
     }
