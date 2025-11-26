@@ -13,6 +13,18 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace semSimulatorHokejovychTurnajuTrejbal {
+
+    public class ShotEvent {
+        public Skater Shooter { get;}
+        public bool IsHome { get;}
+        public int NewShotCount { get;}
+        public ShotEvent(Skater shooter, bool isHome, int newShots) {
+            Shooter = shooter;
+            IsHome = isHome;
+            shooter.Stats.AddShot();
+            NewShotCount = newShots;
+        }
+    }
     public class GoalEvent {
         public Skater Scorer { get;}
         public Skater? Assist1 { get;}
@@ -25,6 +37,9 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
             Assist2 = assist2;
             NewScore = newScore;
             IsHomeGoal = isHomeGoal;
+            scorer.Stats.AddGoal();
+            if (assist1 != null) assist1.Stats.AddAssist();
+            if (assist2 != null) assist2.Stats.AddAssist();
         }
     }
     partial class Simulation{
@@ -41,6 +56,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         private Skater awayC, awayLW, awayRW, awayLD, awayRD;
 
         public event Action<Match>? MatchUpdated;
+        public event Action<ShotEvent>? ShotAttempted;
         public event Action<GoalEvent>? GoalScored;
         public event Action<List<Player>>? HomeStatsUpdated;
         public event Action<List<Player>>? AwayStatsUpdated;
@@ -133,13 +149,105 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         private void Draw(Player p, double x, double y, Brush c) => DrawPlayerRequested?.Invoke(p, x, y, c);
 
         private void SimulateEvents() {
-            //TODO
-            awayC.Stats.AddGoal();
-            awayLW.Stats.AddAssist();
-            _match.AwayScore++;
-            GoalScored?.Invoke(new GoalEvent( awayC, awayLW, null, _match.AwayScore, false));
-        }
+            // Složení hráčů na ledě
+            var homeOnIce = new List<Skater> { homeLW, homeC, homeRW, homeLD, homeRD };
+            var awayOnIce = new List<Skater> { awayLW, awayC, awayRW, awayLD, awayRD };
 
+            // Výpočet parametrů pro počet střel
+            double homeSkating = (homeLW.Skating + homeC.Skating + homeRW.Skating) / 3.0;
+            double awaySkating = (awayLW.Skating + awayC.Skating + awayRW.Skating) / 3.0;
+            double homeDefense = (homeLD.Defending + homeRD.Defending) / 2.0;
+            double awayDefense = (awayLD.Defending + awayRD.Defending) / 2.0;
+            double homeExpected = (0.5 + (homeSkating - awayDefense) / 50.0);
+            double awayExpected = (0.5 + (awaySkating - homeDefense) / 50.0);
+
+            // Náhodné rozložení kolem očekávané hodnoty
+            int homeAttempts = Math.Max(0, (int)Math.Round(homeExpected + (_rand.NextDouble() - 0.5)));
+            int awayAttempts = Math.Max(0, (int)Math.Round(awayExpected + (_rand.NextDouble() - 0.5)));
+
+            // Pomocné lokální funkce pro výběr
+            Skater PickGoalScorer(List<Skater> list) {
+                var weights = list.Select(s => Math.Max(1.0, s.Shooting + 0.25 * s.Skating)).ToArray();
+                double total = weights.Sum();
+                double r = _rand.NextDouble() * total;
+                double cum = 0;
+                for (int i = 0; i < list.Count; i++) {
+                    cum += weights[i];
+                    if (r <= cum) return list[i];
+                }
+                return list.Last();
+            }
+
+            Skater PickAssister(List<Skater> list, Skater exclude, Skater exclude2=null) {
+                var candidates = list.Where(p => p != exclude && p != exclude2).ToList();
+                var weights = candidates.Select(s => Math.Max(1.0, 1.5 * s.Passing + 0.5 * s.Overall)).ToArray();
+                double total = weights.Sum();
+                double r = _rand.NextDouble() * total;
+                double cum = 0;
+                for (int i = 0; i < candidates.Count; i++) {
+                    cum += weights[i];
+                    if (r <= cum) return candidates[i];
+                }
+                return candidates.Last();
+            }
+
+            // Simulace pro jednu sadu pokusů týmů
+            void SimulateTeamAttempts(int attempts, List<Skater> attackers, Goalie defendingGoalie, bool isHome) {
+                for (int i = 0; i < attempts; i++) {
+                    var shooter = PickGoalScorer(attackers);
+                    // rozhodnutí střela vs přihrávka
+                    double shootProb = shooter.Shooting + 0.0001;
+                    double passProb = shooter.Passing + 0.0001;
+                    bool willShoot = _rand.NextDouble() < (shootProb / (shootProb + passProb));
+
+                    // změna ze střely -> přihrávku
+                    if (!willShoot) {
+                        // přihrávku provede střelec, ale střelcem na zakončení se stává asistent vybraný váhově
+                        var assister = PickAssister(attackers, shooter);
+                        shooter = assister;
+                    }
+
+                    // střely
+                    if (isHome) _match.HomeShots++;
+                    else _match.AwayShots++;
+                    int newShotCount = isHome ? _match.HomeShots : _match.AwayShots;
+                    ShotAttempted?.Invoke(new ShotEvent(shooter, isHome, newShotCount));
+                    // Výpočet šance na gól: když je hodnocení střelcovi střeli a brankáře stejné -> 10%
+                    double chance;
+                    if (shooter.Shooting == defendingGoalie.Overall) {
+                        chance = 0.10;
+                    } else {
+                        chance = 0.10 + (shooter.Shooting - defendingGoalie.Overall) * 0.01;
+                    }
+
+                    // Omezení do intervalu
+                    chance = Math.Max(0.01, Math.Min(chance, 0.8));
+
+                    if (_rand.NextDouble() < chance) {
+                        // Gól padl
+                        if (isHome) {
+                            _match.HomeScore++;
+                        } else {
+                            _match.AwayScore++;
+                        }
+                        // Výběr asistencí: první 90%, druhá 80% z první
+                        Skater? assist1 = null;
+                        Skater? assist2 = null;
+                        if (_rand.NextDouble() < 0.90) {
+                            assist1 = PickAssister(attackers, shooter);
+                            if (_rand.NextDouble() < 0.80) {
+                                assist2 = PickAssister(attackers, shooter, assist1);
+                            }
+                        }
+                        int newScore = isHome ? _match.HomeScore : _match.AwayScore;
+                        GoalScored?.Invoke(new GoalEvent(shooter, assist1, assist2, newScore, isHome));
+                    }
+                }
+            }
+
+            SimulateTeamAttempts(homeAttempts, homeOnIce, awayGoalie, isHome: true);
+            SimulateTeamAttempts(awayAttempts, awayOnIce, homeGoalie, isHome: false);
+        }
         private void StartMatchUpdated() => MatchUpdated?.Invoke(_match);
         private void RaiseStatsUpdated() {
             HomeStatsUpdated?.Invoke(_homePlayers);

@@ -173,7 +173,7 @@
                         <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="270" Fill="Red"/>
                         <Ellipse Width="10" Height="10" Canvas.Left="95" Canvas.Top="420" Fill="Red"/>
                         <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="420" Fill="Red"/>
-                        <Border x:Name="GoalPopup" Background="#CC000000" Canvas.Left="115" Canvas.Top="178" CornerRadius="12" Padding="20" Margin="0,80,0,0" Panel.ZIndex="3" Opacity="100">
+                        <Border x:Name="GoalPopup" Background="#CC000000" Canvas.Left="115" Canvas.Top="178" CornerRadius="12" Padding="20" Margin="0,80,0,0" Panel.ZIndex="3" Opacity="0">
                             <Border.Effect>
                                 <DropShadowEffect Color="blue" ShadowDepth="3" BlurRadius="30"/>
                             </Border.Effect>

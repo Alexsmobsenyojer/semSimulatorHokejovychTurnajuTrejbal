@@ -186,6 +186,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             
             _sim = new Simulation(match, Players, Teams);
             _sim.MatchUpdated += OnMatchUpdated;
+            _sim.ShotAttempted += OnShotAttempted;
             _sim.GoalScored += OnGoalScored;
             _sim.HomeStatsUpdated += players => UpdateStats(players, true);
             _sim.AwayStatsUpdated += players => UpdateStats(players, false);
@@ -194,12 +195,16 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             _sim.StartMatch();
             BtnStartSim.IsEnabled = true;
             BtnStopSim.IsEnabled = true;
-            BtnSkipSim.IsEnabled = true;
         }
 
         private void OnMatchUpdated(Match m) {
             TextTeamA.Text = Teams.First(t => t.Id == m.HomeTeamId).Name;
             TextTeamB.Text = Teams.First(t => t.Id == m.AwayTeamId).Name;
+        }
+
+        private void OnShotAttempted(ShotEvent shot) {
+            if (shot.IsHome) TextTeamAShots.Text = shot.NewShotCount.ToString();
+            else TextTeamBShots.Text = shot.NewShotCount.ToString();
         }
 
         private void OnGoalScored(GoalEvent goal) {
@@ -259,6 +264,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         private void StartSimulationClick(object sender, RoutedEventArgs e){
             _simulationTimer.Interval = TimeSpan.FromSeconds(1);
             SimulationStart();
+            BtnSkipSim.IsEnabled = true;
         }
 
         private void StopSimulationClick(object sender, RoutedEventArgs e) {
@@ -268,7 +274,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal
 
         private void SkipSimulationClick(object sender, RoutedEventArgs e) {
             _simulationTimer.Interval = TimeSpan.FromMilliseconds(10);
-            SimulationStart();
         }
 
         private void SimulationStart() {
@@ -295,6 +300,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                 if (_currentPeriod >= 3) {
                     _isSimulating = false;
                     StatusText.Text = "Zápas skončil.";
+                    //https://stackoverflow.com/questions/13769607/wpf-disable-listbox-items-with-mvvm
                     MatchesListBox.IsEnabled = true;
                     BtnStartSim.IsEnabled = false;
                     BtnSkipSim.IsEnabled = false;
