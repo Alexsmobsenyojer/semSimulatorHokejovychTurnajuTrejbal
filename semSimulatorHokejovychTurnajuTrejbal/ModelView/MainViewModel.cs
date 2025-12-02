@@ -24,8 +24,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [ObservableProperty] private ObservableCollection<object> filteredEntities = new();
         [ObservableProperty] private ObservableCollection<Match> currentMatches = new();
         [ObservableProperty] private Match? selectedMatch;
-        [ObservableProperty] private bool canStartSimulation = false;
-        [ObservableProperty] private bool isSimulationRunning = false;
 
         [ObservableProperty] private string selectedEntityType = "Hráč";
         [ObservableProperty] private Player? selectedPlayer;
@@ -45,14 +43,15 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [ObservableProperty] private string periodText = "1st";
         [ObservableProperty] private int currentMinute = 20;
         [ObservableProperty] private int currentPeriod = 1;
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(StopSimulationCommand))]
+        private bool isSimulationRunning = false;
 
-        [ObservableProperty] private bool showGoalAnimation = false;
+        [ObservableProperty] private int showGoalAnimation = 0;
         [ObservableProperty] private GoalEvent? currentGoal;
 
         [ObservableProperty] private ObservableCollection<object> skaterStats = new();
         [ObservableProperty] private ObservableCollection<object> goalieStats = new();
-        [ObservableProperty] private bool showHomeStats = true;
-        [ObservableProperty] private bool showAwayStats = false;
 
         public ObservableCollection<string> EntityTypes { get; } = new() { "Hráč", "Tým", "Turnaj" };
 
@@ -61,7 +60,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += (s, e) => SimulateMinute();
         }
-
+        private bool CanStartSimulation() => _simulation!=null && !IsSimulationRunning;
         private async Task Reload() {
             StatusText = "Načítání...";
             await _service.LoadAllAsync();
@@ -95,24 +94,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [RelayCommand]
         private void CreateEntity(string? type) => OpenEditWindow(type, null);
 
-        [RelayCommand]
-        private void EditSelected(object? item) {
-            if (item != null) {
-                int? id = null;
-                switch (SelectedEntityType) {
-                    case "Hráč":
-                        OpenEditWindow(SelectedEntityType, id.Value);
-                        break;
-                    case "Tým":
-                        OpenEditWindow(SelectedEntityType, id.Value);
-                        break;
-                    case "Turnaj":
-                        OpenEditWindow(SelectedEntityType, id.Value);
-                        break;
-                }       
-            }
-        }
-
         private void OpenEditWindow(string? type, int? id) {
             //
         }
@@ -134,12 +115,11 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         }
         [RelayCommand (CanExecute = nameof(CanStartSimulation))]
         private void StartSimulation() {
-            CurrentMinute = 20;
-            CurrentPeriod = 1;
-            PeriodText = "1st";
-            GameTime = "20:00";
+            _timer.Interval = TimeSpan.FromSeconds(1);
             _timer.Start();
+            IsSimulationRunning = true;
         }
+
         [RelayCommand (CanExecute = nameof(IsSimulationRunning))]
         private void StopSimulation() {
             _timer.Stop();
@@ -160,8 +140,10 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
 
             if (CurrentMinute <= 0) {
                 _timer.Stop();
-                if (CurrentPeriod >= 3) {
+                if (CurrentPeriod == 3) {
                     StatusText = "Zápas skončil";
+                    IsSimulationRunning = false;
+                    SelectedMatch!.wasPlayed = true;
                     return;
                 }
                 CurrentPeriod++;
@@ -171,22 +153,48 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             }
         }
 
-        partial void OnSelectedMatchChanged(Match? match) {
-            if (match == null) return;
-
-            _simulation = new Simulation(match, Players, Teams);
-            _simulation.MatchUpdated += m => { HomeScore = m.HomeScore; AwayScore = m.AwayScore; };
-            _simulation.ShotAttempted += s => { HomeShots = s.IsHome ? HomeShots + 1 : HomeShots; AwayShots = s.IsHome ? AwayShots : AwayShots + 1; };
-            _simulation.GoalScored += g => { CurrentGoal = g; ShowGoalAnimation = true; Task.Delay(3500).ContinueWith(_ => ShowGoalAnimation = false); };
-            _simulation.HomeStatsUpdated += p => UpdateStats(p, true);
-            _simulation.AwayStatsUpdated += p => UpdateStats(p, false);
-            //_simulation.DrawPlayerRequested += App.Current.MainWindow.DrawPlayer;
-            //_simulation.ClearCanvasRequested += App.Current.MainWindow.ClearPlayers;
-            _simulation.StartMatch();
-            CanStartSimulation = true;
+        partial void OnSelectedTournamentChanged(Tournament? value) {
+            if (value == null) {
+                CurrentMatches.Clear();
+                return;
+            }
+            var matches = value.Matches.Where(m => !m.wasPlayed).ToList();
+            CurrentMatches = new ObservableCollection<Match>(matches);
         }
 
-        private void UpdateStats(List<Player> players, bool isHome) {
+        partial void OnSelectedMatchChanged(Match? value) {
+            if (value == null) return;
+            HomeTeamName = Teams.FirstOrDefault(t => t.Id == value.HomeTeamId)?.Name ?? "HOME";
+            AwayTeamName = Teams.FirstOrDefault(t => t.Id == value.AwayTeamId)?.Name ?? "AWAY";
+            if (value!.wasPlayed){
+                _simulation = null;
+                HomeScore = value.HomeScore;
+                AwayScore = value.AwayScore;
+                HomeShots = value.HomeShots;
+                AwayShots = value.AwayShots;
+                PeriodText = "Zápas již byl odehrán";
+                return;
+            }
+            CurrentMinute = 20;
+            CurrentPeriod = 1;
+            PeriodText = "1st";
+            GameTime = "20:00";
+            _simulation = new Simulation(value, Players, Teams);
+            _simulation.MatchUpdated += m => { HomeScore = m.HomeScore; AwayScore = m.AwayScore; };
+            _simulation.ShotAttempted += s => { HomeShots = s.IsHome ? HomeShots + 1 : HomeShots; AwayShots = s.IsHome ? AwayShots : AwayShots + 1; };
+            _simulation.GoalScored += g => { CurrentGoal = g; ShowGoalAnimation = 100; Task.Delay(3500).ContinueWith(_ => ShowGoalAnimation = 0); 
+                if(g.IsHomeGoal)HomeScore++; else AwayScore++; };
+            _simulation.HomeStatsUpdated += p => UpdateStats(p);
+            _simulation.AwayStatsUpdated += p => UpdateStats(p);
+            if (App.Current.MainWindow is MainWindow mainWindow)
+            {
+                _simulation.DrawPlayerRequested += mainWindow.DrawPlayer;
+                _simulation.ClearCanvasRequested += mainWindow.ClearPlayers;
+            }
+            _simulation.StartMatch();
+        }
+
+        private void UpdateStats(List<Player> players) {
 
             SkaterStats = new(players.OfType<Skater>().Select(s => new
             {
@@ -201,7 +209,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 g.FullName,
                 g.Stats.Saves,
                 g.Stats.GoalsAgainst,
-                SavePct = g.Stats.SavePercentage.ToString("F2")
+                SavePercentage = g.Stats.SavePercentage
             }));
         }
     }

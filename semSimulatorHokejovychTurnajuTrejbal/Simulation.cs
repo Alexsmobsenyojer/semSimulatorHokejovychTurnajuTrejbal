@@ -18,10 +18,11 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         public Skater Shooter { get;}
         public bool IsHome { get;}
         public int NewShotCount { get;}
-        public ShotEvent(Skater shooter, bool isHome, int newShots) {
+        public ShotEvent(Skater shooter, Goalie goalie, bool isHome, int newShots) {
             Shooter = shooter;
             IsHome = isHome;
             shooter.Stats.AddShot();
+            goalie.Stats.AddSave();
             NewShotCount = newShots;
         }
     }
@@ -31,13 +32,14 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         public Skater? Assist2 { get;}
         public int NewScore { get;}
         public bool IsHomeGoal { get;}
-        public GoalEvent(Skater scorer, Skater? assist1, Skater? assist2, int newScore,  bool isHomeGoal) {
+        public GoalEvent(Skater scorer, Goalie goalie, Skater? assist1, Skater? assist2, int newScore,  bool isHomeGoal) {
             Scorer = scorer;
             Assist1 = assist1;
             Assist2 = assist2;
             NewScore = newScore;
             IsHomeGoal = isHomeGoal;
             scorer.Stats.AddGoal();
+            goalie.Stats.AddGoalAgainst();
             if (assist1 != null) assist1.Stats.AddAssist();
             if (assist2 != null) assist2.Stats.AddAssist();
         }
@@ -211,7 +213,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
                     if (isHome) _match.HomeShots++;
                     else _match.AwayShots++;
                     int newShotCount = isHome ? _match.HomeShots : _match.AwayShots;
-                    ShotAttempted?.Invoke(new ShotEvent(shooter, isHome, newShotCount));
+                    ShotAttempted?.Invoke(new ShotEvent(shooter, defendingGoalie, isHome, newShotCount));
                     // Výpočet šance na gól: když je hodnocení střelcovi střeli a brankáře stejné -> 10%
                     double chance;
                     if (shooter.Shooting == defendingGoalie.Overall) {
@@ -240,7 +242,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
                             }
                         }
                         int newScore = isHome ? _match.HomeScore : _match.AwayScore;
-                        GoalScored?.Invoke(new GoalEvent(shooter, assist1, assist2, newScore, isHome));
+                        GoalScored?.Invoke(new GoalEvent(shooter, defendingGoalie, assist1, assist2, newScore, isHome));
                     }
                 }
             }

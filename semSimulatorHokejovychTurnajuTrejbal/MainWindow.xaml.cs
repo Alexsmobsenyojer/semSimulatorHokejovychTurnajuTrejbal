@@ -21,7 +21,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
        
 
 
-        private void DrawPlayer(Player player, double centerX, double centerY, Brush fill) {
+        public void DrawPlayer(Player player, double centerX, double centerY, Brush fill) {
             const double radius = 18;
             const double fontSize = 20;
 
@@ -44,7 +44,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             RinkCanvas.Children.Add(text);
         }
 
-        private void ClearPlayers() {
+        public void ClearPlayers() {
             for (int i = RinkCanvas.Children.Count - 1; i >= 0; i--) {
                 if (RinkCanvas.Children[i] is FrameworkElement el && el.Tag?.ToString() == "Player")
                     RinkCanvas.Children.RemoveAt(i);

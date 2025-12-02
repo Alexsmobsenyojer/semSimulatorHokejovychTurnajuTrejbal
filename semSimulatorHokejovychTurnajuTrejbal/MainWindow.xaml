@@ -40,6 +40,23 @@
                     <Button Content="Vytvořit" Command="{Binding CreateEntityCommand}" CommandParameter="{Binding SelectedEntityType}" Margin="0,0,0,10"/>
                     <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"/>
                     <!--<Button Content="Filtrovat" Command="{Binding FilterCommand}" Margin="0,0,0,10"/>-->
+                    <DataGrid Grid.Column="2" ItemsSource="{Binding Tournaments}" SelectedItem="{Binding SelectedTournament}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Název" Binding="{Binding Title}" Width="300"/>
+                            <DataGridTextColumn Header="Týmů" Binding="{Binding TeamIds.Count}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid Grid.Column="1" ItemsSource="{Binding Teams}" SelectedItem="{Binding SelectedTeam}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Název" Binding="{Binding Name}" Width="250"/>
+                            <DataGridTextColumn Header="Výhry" Binding="{Binding Wins}" Width="80"/>
+                            <DataGridTextColumn Header="Prohry" Binding="{Binding Losses}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    
                     <DataGrid Grid.Column="0" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
@@ -55,22 +72,6 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     
-                    <DataGrid Grid.Column="1" ItemsSource="{Binding Teams}" SelectedItem="{Binding SelectedTeam}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
-                            <DataGridTextColumn Header="Název" Binding="{Binding Name}" Width="250"/>
-                            <DataGridTextColumn Header="Výhry" Binding="{Binding Wins}" Width="80"/>
-                            <DataGridTextColumn Header="Prohry" Binding="{Binding Losses}" Width="80"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <DataGrid Grid.Column="2" ItemsSource="{Binding Tournaments}" SelectedItem="{Binding SelectedTournament}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
-                            <DataGridTextColumn Header="Název" Binding="{Binding Title}" Width="300"/>
-                            <DataGridTextColumn Header="Týmů" Binding="{Binding TeamIds.Count}" Width="100"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
                 </StackPanel>
             </Border>
 
@@ -196,7 +197,7 @@
                         <Ellipse Width="10" Height="10" Canvas.Left="95" Canvas.Top="420" Fill="Red"/>
                         <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="420" Fill="Red"/>
                         <!-- Goal Popup -->
-                        <Border Background="#CC000000" Canvas.Left="115" Canvas.Top="178" CornerRadius="12" Padding="20" Margin="0,80,0,0" Panel.ZIndex="3" Opacity="0">
+                            <Border Background="#CC000000" Canvas.Left="115" Canvas.Top="178" CornerRadius="12" Padding="20" Margin="0,80,0,0" Panel.ZIndex="3" Opacity="{Binding ShowGoalAnimation}">
                             <Border.Effect>
                                 <DropShadowEffect Color="blue" ShadowDepth="3" BlurRadius="30"/>
                             </Border.Effect>
@@ -224,9 +225,9 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Hráč" Width="150" DisplayMemberBinding="{Binding FullName}"/>
-                                <GridViewColumn Header="Góly" Width="75" DisplayMemberBinding="{Binding Goals}"/>
-                                <GridViewColumn Header="Asistence" Width="75" DisplayMemberBinding="{Binding Assists}"/>
-                                <GridViewColumn Header="Střely" Width="75" DisplayMemberBinding="{Binding Shots}"/>
+                                <GridViewColumn Header="Góly" Width="60" DisplayMemberBinding="{Binding Goals}"/>
+                                <GridViewColumn Header="Asistence" Width="60" DisplayMemberBinding="{Binding Assists}"/>
+                                <GridViewColumn Header="Střely" Width="60" DisplayMemberBinding="{Binding Shots}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
