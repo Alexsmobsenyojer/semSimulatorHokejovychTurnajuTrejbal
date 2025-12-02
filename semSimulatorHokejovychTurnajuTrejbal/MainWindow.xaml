@@ -40,7 +40,7 @@
                     <Button Content="Vytvořit" Command="{Binding CreateEntityCommand}" CommandParameter="{Binding SelectedEntityType}" Margin="0,0,0,10"/>
                     <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"/>
                     <!--<Button Content="Filtrovat" Command="{Binding FilterCommand}" Margin="0,0,0,10"/>-->
-                    <DataGrid Grid.Column="2" ItemsSource="{Binding Tournaments}" SelectedItem="{Binding SelectedTournament}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
+                    <DataGrid Grid.Column="2" ItemsSource="{Binding Tournaments}" SelectedItem="{Binding SelectedTournament}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Height="150">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
                             <DataGridTextColumn Header="Název" Binding="{Binding Title}" Width="300"/>
@@ -48,7 +48,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <DataGrid Grid.Column="1" ItemsSource="{Binding Teams}" SelectedItem="{Binding SelectedTeam}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
+                    <DataGrid Grid.Column="1" ItemsSource="{Binding Teams}" SelectedItem="{Binding SelectedTeam}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Height="200">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
                             <DataGridTextColumn Header="Název" Binding="{Binding Name}" Width="250"/>
@@ -57,7 +57,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     
-                    <DataGrid Grid.Column="0" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
+                    <DataGrid Grid.Column="0" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Height="250">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
                             <DataGridTextColumn Header="Jméno" Binding="{Binding FullName}" Width="100"/>
@@ -217,30 +217,53 @@
             <Border Grid.Column="2">
                 <StackPanel>
                     <TextBlock Text="Statistiky hráčů" FontWeight="Bold" HorizontalAlignment="Center" Foreground="RoyalBlue" Margin="2"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <RadioButton Content="Domácí" IsChecked="{Binding ShowHomeStats}" GroupName="TeamStats"/>
-                        <RadioButton Content="Hosté" IsChecked="{Binding ShowAwayStats}" GroupName="TeamStats" Margin="10,0"/>
-                    </StackPanel>
-                    <ListView ItemsSource="{Binding SkaterStats}" Height="300" >
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Hráč" Width="150" DisplayMemberBinding="{Binding FullName}"/>
-                                <GridViewColumn Header="Góly" Width="60" DisplayMemberBinding="{Binding Goals}"/>
-                                <GridViewColumn Header="Asistence" Width="60" DisplayMemberBinding="{Binding Assists}"/>
-                                <GridViewColumn Header="Střely" Width="60" DisplayMemberBinding="{Binding Shots}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                    <ListView ItemsSource="{Binding GoalieStats}" Height="100" >
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Hráč" Width="150" DisplayMemberBinding="{Binding FullName}"/>
-                                <GridViewColumn Header="Zásahy" Width="75" DisplayMemberBinding="{Binding Saves}"/>
-                                <GridViewColumn Header="Obdržené góly" Width="75" DisplayMemberBinding="{Binding GoalsAgainst}"/>
-                                <GridViewColumn Header="Úspěšnost zákroků" Width="75" DisplayMemberBinding="{Binding SavePercentage, StringFormat=F2}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                    <CheckBox Content="Domácí" IsChecked="{Binding ShowHomeStats}"/>
+                    <Grid>
+                        <StackPanel Opacity="{Binding VisibilityHomeStats}">
+                            <ListView ItemsSource="{Binding SkStatsHome}" Height="300" >
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Bruslař" Width="100" DisplayMemberBinding="{Binding FullName}"/>
+                                        <GridViewColumn Header="Góly" Width="60" DisplayMemberBinding="{Binding Goals}"/>
+                                        <GridViewColumn Header="Asistence" Width="60" DisplayMemberBinding="{Binding Assists}"/>
+                                        <GridViewColumn Header="Střely" Width="60" DisplayMemberBinding="{Binding Shots}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <ListView ItemsSource="{Binding GoStatsHome}" Height="100" >
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Brankář" Width="100" DisplayMemberBinding="{Binding FullName}"/>
+                                        <GridViewColumn Header="Zásahy" Width="75" DisplayMemberBinding="{Binding Saves}"/>
+                                        <GridViewColumn Header="Obdržené góly" Width="75" DisplayMemberBinding="{Binding GoalsAgainst}"/>
+                                        <GridViewColumn Header="Úspěšnost zákroků" Width="75" DisplayMemberBinding="{Binding SavePercentage, StringFormat=F2}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Opacity="{Binding VisibilityAwayStats}">
+                            <ListView ItemsSource="{Binding SkStatsAway}" Height="300" >
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Bruslař" Width="100" DisplayMemberBinding="{Binding FullName}"/>
+                                        <GridViewColumn Header="Góly" Width="60" DisplayMemberBinding="{Binding Goals}"/>
+                                        <GridViewColumn Header="Asistence" Width="60" DisplayMemberBinding="{Binding Assists}"/>
+                                        <GridViewColumn Header="Střely" Width="60" DisplayMemberBinding="{Binding Shots}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <ListView ItemsSource="{Binding GoStatsAway}" Height="100" >
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Brankář" Width="150" DisplayMemberBinding="{Binding FullName}"/>
+                                        <GridViewColumn Header="Zásahy" Width="75" DisplayMemberBinding="{Binding Saves}"/>
+                                        <GridViewColumn Header="Obdržené góly" Width="75" DisplayMemberBinding="{Binding GoalsAgainst}"/>
+                                        <GridViewColumn Header="Úspěšnost zákroků" Width="75" DisplayMemberBinding="{Binding SavePercentage, StringFormat=F2}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </StackPanel>
+                    </Grid>
                     <TextBlock Text="Zápasy turnaje" FontWeight="Bold" HorizontalAlignment="Center" Foreground="RoyalBlue" Margin="2"/>
                     <ListBox ItemsSource="{Binding CurrentMatches}" SelectedItem="{Binding SelectedMatch}" Height="250">
                         <ListBox.ItemTemplate>

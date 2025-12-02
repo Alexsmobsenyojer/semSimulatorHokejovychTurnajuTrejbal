@@ -18,9 +18,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal
             DataContext = new MainViewModel();
         }
 
-       
-
-
         public void DrawPlayer(Player player, double centerX, double centerY, Brush fill) {
             const double radius = 18;
             const double fontSize = 20;

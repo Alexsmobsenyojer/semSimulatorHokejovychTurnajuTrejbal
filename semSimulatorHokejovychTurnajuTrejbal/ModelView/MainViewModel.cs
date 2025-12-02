@@ -23,7 +23,10 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         public ObservableCollection<Tournament> Tournaments => _service.Tournaments;
         [ObservableProperty] private ObservableCollection<object> filteredEntities = new();
         [ObservableProperty] private ObservableCollection<Match> currentMatches = new();
-        [ObservableProperty] private Match? selectedMatch;
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(StartSimulationCommand))]
+        [NotifyCanExecuteChangedFor(nameof(SkipSimulationCommand))] 
+        private Match? selectedMatch;
 
         [ObservableProperty] private string selectedEntityType = "Hráč";
         [ObservableProperty] private Player? selectedPlayer;
@@ -43,6 +46,9 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [ObservableProperty] private string periodText = "1st";
         [ObservableProperty] private int currentMinute = 20;
         [ObservableProperty] private int currentPeriod = 1;
+        [ObservableProperty] private bool showHomeStats = true;
+        [ObservableProperty] private int visibilityHomeStats = 100;
+        [ObservableProperty] private int visibilityAwayStats = 0;
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(StopSimulationCommand))]
         private bool isSimulationRunning = false;
@@ -50,17 +56,19 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [ObservableProperty] private int showGoalAnimation = 0;
         [ObservableProperty] private GoalEvent? currentGoal;
 
-        [ObservableProperty] private ObservableCollection<object> skaterStats = new();
-        [ObservableProperty] private ObservableCollection<object> goalieStats = new();
+        [ObservableProperty] private ObservableCollection<object> skStatsHome = new();
+        [ObservableProperty] private ObservableCollection<object> goStatsHome = new();
+        [ObservableProperty] private ObservableCollection<object> skStatsAway = new();
+        [ObservableProperty] private ObservableCollection<object> goStatsAway = new();
 
         public ObservableCollection<string> EntityTypes { get; } = new() { "Hráč", "Tým", "Turnaj" };
 
         public MainViewModel() {
             _service = new HockeyService();
-            _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _timer = new DispatcherTimer();
             _timer.Tick += (s, e) => SimulateMinute();
         }
-        private bool CanStartSimulation() => _simulation!=null && !IsSimulationRunning;
+        private bool CanStartSimulation() => SelectedMatch != null && !SelectedMatch.wasPlayed && !IsSimulationRunning;
         private async Task Reload() {
             StatusText = "Načítání...";
             await _service.LoadAllAsync();
@@ -184,8 +192,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             _simulation.ShotAttempted += s => { HomeShots = s.IsHome ? HomeShots + 1 : HomeShots; AwayShots = s.IsHome ? AwayShots : AwayShots + 1; };
             _simulation.GoalScored += g => { CurrentGoal = g; ShowGoalAnimation = 100; Task.Delay(3500).ContinueWith(_ => ShowGoalAnimation = 0); 
                 if(g.IsHomeGoal)HomeScore++; else AwayScore++; };
-            _simulation.HomeStatsUpdated += p => UpdateStats(p);
-            _simulation.AwayStatsUpdated += p => UpdateStats(p);
+            _simulation.HomeStatsUpdated += p => UpdateStatsHome(p);
+            _simulation.AwayStatsUpdated += p => UpdateStatsAway(p);
             if (App.Current.MainWindow is MainWindow mainWindow)
             {
                 _simulation.DrawPlayerRequested += mainWindow.DrawPlayer;
@@ -193,10 +201,19 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             }
             _simulation.StartMatch();
         }
+        partial void OnShowHomeStatsChanged(bool value) {
+            //TODO udělat všechno skrývání přes opacity!!!!!!!!!!!!!!!
+            if (value) {
+                VisibilityHomeStats = 100;
+                VisibilityAwayStats = 0;
+            } else {
+                VisibilityHomeStats = 0;
+                VisibilityAwayStats = 100;
+            }
+        }
 
-        private void UpdateStats(List<Player> players) {
-
-            SkaterStats = new(players.OfType<Skater>().Select(s => new
+        private void UpdateStatsHome(List<Player> players) {
+            SkStatsHome = new(players.OfType<Skater>().Select(s => new
             {
                 s.FullName,
                 s.Stats.Goals,
@@ -204,12 +221,28 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 s.Stats.Shots
             }));
 
-            GoalieStats = new(players.OfType<Goalie>().Select(g => new
+            GoStatsHome = new(players.OfType<Goalie>().Select(g => new
             {
                 g.FullName,
                 g.Stats.Saves,
                 g.Stats.GoalsAgainst,
-                SavePercentage = g.Stats.SavePercentage
+                g.Stats.SavePercentage
+            }));
+        }
+        private void UpdateStatsAway(List<Player> players) {
+            SkStatsAway = new(players.OfType<Skater>().Select(s => new
+            {
+                s.FullName,
+                s.Stats.Goals,
+                s.Stats.Assists,
+                s.Stats.Shots
+            }));
+            GoStatsAway = new(players.OfType<Goalie>().Select(g => new
+            {
+                g.FullName,
+                g.Stats.Saves,
+                g.Stats.GoalsAgainst,
+                g.Stats.SavePercentage
             }));
         }
     }
