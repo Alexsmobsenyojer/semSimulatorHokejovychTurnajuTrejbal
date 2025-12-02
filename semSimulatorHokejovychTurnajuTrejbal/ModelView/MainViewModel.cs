@@ -28,10 +28,16 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [NotifyCanExecuteChangedFor(nameof(SkipSimulationCommand))] 
         private Match? selectedMatch;
 
-        [ObservableProperty] private string selectedEntityType = "Hráč";
-        [ObservableProperty] private Player? selectedPlayer;
-        [ObservableProperty] private Team? selectedTeam;
-        [ObservableProperty] private Tournament? selectedTournament;
+        [ObservableProperty] private string selectedEntityType = "Turnaj";
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(DeletePlayerCommand))]
+        private Player? selectedPlayer;
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(DeleteTeamCommand))]
+        private Team? selectedTeam;
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(DeleteTournamentCommand))]
+        private Tournament? selectedTournament;
 
         [ObservableProperty] private string filterText = "";
         [ObservableProperty] private string statusText = "Připraveno";
@@ -47,13 +53,12 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [ObservableProperty] private int currentMinute = 20;
         [ObservableProperty] private int currentPeriod = 1;
         [ObservableProperty] private bool showHomeStats = true;
-        [ObservableProperty] private int visibilityHomeStats = 100;
-        [ObservableProperty] private int visibilityAwayStats = 0;
+
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(StopSimulationCommand))]
         private bool isSimulationRunning = false;
+        [ObservableProperty] private bool isSimulationEnabled = false;//zamezit simulaci po skončení zápasu
 
-        [ObservableProperty] private int showGoalAnimation = 0;
         [ObservableProperty] private GoalEvent? currentGoal;
 
         [ObservableProperty] private ObservableCollection<object> skStatsHome = new();
@@ -61,14 +66,21 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [ObservableProperty] private ObservableCollection<object> skStatsAway = new();
         [ObservableProperty] private ObservableCollection<object> goStatsAway = new();
 
-        public ObservableCollection<string> EntityTypes { get; } = new() { "Hráč", "Tým", "Turnaj" };
+        public ObservableCollection<string> EntityTypes { get; } = new() { "Turnaj", "Tým", "Hráč" };
+
+        [ObservableProperty] private int visibilityHomeStats = 100;
+        [ObservableProperty] private int visibilityAwayStats = 0;
+        [ObservableProperty] private int showGoalAnimation = 0;
+        [ObservableProperty] private int showPlayers =0;
+        [ObservableProperty] private int showTeams = 0;
+        [ObservableProperty] private int showTournaments = 100;
 
         public MainViewModel() {
             _service = new HockeyService();
             _timer = new DispatcherTimer();
             _timer.Tick += (s, e) => SimulateMinute();
         }
-        private bool CanStartSimulation() => SelectedMatch != null && !SelectedMatch.wasPlayed && !IsSimulationRunning;
+        private bool CanStartSimulation() => SelectedMatch != null && !SelectedMatch.WasPlayed && !IsSimulationRunning;
         private async Task Reload() {
             StatusText = "Načítání...";
             await _service.LoadAllAsync();
@@ -121,6 +133,47 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 return false;
             };
         }
+
+        private bool CanDeleteTournament() => SelectedTournament != null;
+        [RelayCommand (CanExecute =nameof(CanDeleteTournament))]
+        private async Task DeleteTournament() {
+            if (SelectedTournament == null) return;
+            if (MessageBox.Show($"Opravdu smazat turnaj {SelectedTournament.Title}?", "Potvrzení", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+                await _service.DeleteTournamentAsync(SelectedTournament);
+                Tournaments.Remove(SelectedTournament);
+                StatusText = $"Turnaj smazán";
+            }
+        }
+
+        private bool CanDeleteTeam() => SelectedTeam != null;
+        [RelayCommand (CanExecute =nameof(CanDeleteTeam))]
+        private async Task DeleteTeam() {
+            if (SelectedTeam == null) return;
+            if (MessageBox.Show($"Opravdu smazat tým {SelectedTeam.Name}?", "Potvrzení", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+                foreach (var t in Tournaments) {
+                    var matchesToRemove = t.Matches.Where(m => m.HomeTeamId == SelectedTeam.Id || m.AwayTeamId == SelectedTeam.Id).ToList();
+                    foreach (var match in matchesToRemove) {
+                        t.Matches.Remove(match);
+                        CurrentMatches.Remove(match);
+                    }
+                }
+                await _service.DeleteTeamAsync(SelectedTeam);
+                Teams.Remove(SelectedTeam);
+                StatusText = $"Tým smazán";
+            }
+        }
+
+        private bool CanDeletePlayer() => SelectedPlayer != null;
+        [RelayCommand (CanExecute =nameof(CanDeletePlayer))]
+        private async Task DeletePlayer() {
+            if (SelectedPlayer == null) return;
+            if (MessageBox.Show($"Opravdu smazat hráče {SelectedPlayer.FullName}?", "Potvrzení", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+                await _service.DeletePlayerAsync(SelectedPlayer);
+                Players.Remove(SelectedPlayer);
+                StatusText = $"Hráč smazán";
+            }
+        }
+
         [RelayCommand (CanExecute = nameof(CanStartSimulation))]
         private void StartSimulation() {
             _timer.Interval = TimeSpan.FromSeconds(1);
@@ -151,7 +204,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 if (CurrentPeriod == 3) {
                     StatusText = "Zápas skončil";
                     IsSimulationRunning = false;
-                    SelectedMatch!.wasPlayed = true;
+                    SelectedMatch!.WasPlayed = true;
+                    IsSimulationEnabled = false;
                     return;
                 }
                 CurrentPeriod++;
@@ -166,7 +220,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 CurrentMatches.Clear();
                 return;
             }
-            var matches = value.Matches.Where(m => !m.wasPlayed).ToList();
+            var matches = value.Matches.Where(m => !m.WasPlayed).ToList();
             CurrentMatches = new ObservableCollection<Match>(matches);
         }
 
@@ -174,7 +228,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             if (value == null) return;
             HomeTeamName = Teams.FirstOrDefault(t => t.Id == value.HomeTeamId)?.Name ?? "HOME";
             AwayTeamName = Teams.FirstOrDefault(t => t.Id == value.AwayTeamId)?.Name ?? "AWAY";
-            if (value!.wasPlayed){
+            if (value!.WasPlayed){
                 _simulation = null;
                 HomeScore = value.HomeScore;
                 AwayScore = value.AwayScore;
@@ -200,15 +254,32 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 _simulation.ClearCanvasRequested += mainWindow.ClearPlayers;
             }
             _simulation.StartMatch();
+            IsSimulationEnabled = true;
         }
         partial void OnShowHomeStatsChanged(bool value) {
-            //TODO udělat všechno skrývání přes opacity!!!!!!!!!!!!!!!
             if (value) {
                 VisibilityHomeStats = 100;
                 VisibilityAwayStats = 0;
             } else {
                 VisibilityHomeStats = 0;
                 VisibilityAwayStats = 100;
+            }
+        }
+
+        partial void OnSelectedEntityTypeChanged(string value) {
+            ShowPlayers = 0;
+            ShowTeams = 0;
+            ShowTournaments = 0;
+            switch (value) {
+                case "Hráč":
+                    ShowPlayers = 100;
+                    break;
+                case "Tým":
+                    ShowTeams = 100;
+                    break;
+                case "Turnaj":
+                    ShowTournaments = 100;
+                    break;
             }
         }
 

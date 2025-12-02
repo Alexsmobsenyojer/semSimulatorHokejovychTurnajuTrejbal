@@ -21,7 +21,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         public int AwayScore { get; set; } = 0;
         public int HomeShots { get; set; } = 0;
         public int AwayShots { get; set; } = 0;
-        public bool wasPlayed { get; set; } = false;
+        public bool WasPlayed { get; set; } = false;
 
         public override string ToString() => Title;
     }

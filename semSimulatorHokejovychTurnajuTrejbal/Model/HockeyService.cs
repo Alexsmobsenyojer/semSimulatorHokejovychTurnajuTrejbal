@@ -98,5 +98,17 @@ namespace semSimulatorHokejovychTurnajuTrejbal.Model {
         public async Task UpdateTournamentAsync(Tournament tournament) {
             await TournamentsTable.UpdateAsync(tournament);
         }
+        public async Task DeletePlayerAsync(Player player) {
+            await PlayersTable.DeleteAsync(player.Id);
+            Players.Remove(player);
+        }
+        public async Task DeleteTeamAsync(Team team) {
+            await TeamsTable.DeleteAsync(team.Id);
+            Teams.Remove(team);
+        }
+        public async Task DeleteTournamentAsync(Tournament tournament) {
+            await TournamentsTable.DeleteAsync(tournament.Id);
+            Tournaments.Remove(tournament);
+        }
     }
 }
