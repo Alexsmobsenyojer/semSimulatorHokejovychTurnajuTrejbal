@@ -17,13 +17,13 @@
 
         <Menu Grid.Row="0">
             <MenuItem Header="Soubor">
-                <MenuItem Header="Uložit data" Click="SaveDataClick"/>
-                <MenuItem Header="Načíst data" Click="LoadDataClick"/>
+                <MenuItem Header="Uložit data" Command="{Binding SaveDataCommand}"/>
+                <MenuItem Header="Načíst data" Command="{Binding LoadDataCommand}"/>
                 <Separator/>
-                <MenuItem Header="Konec" Click="ExitClick"/>
+                <MenuItem Header="Konec" Command="{Binding ExitCommand}"/>
             </MenuItem>
             <MenuItem Header="Možnosti">
-                <MenuItem Header="Smazat databázi" Click="DeleteDatabaseClick"/>
+                <MenuItem Header="Smazat databázi" Command="{Binding DeleteDatabaseCommand}"/>
             </MenuItem>
         </Menu>
 
@@ -37,18 +37,40 @@
             <Border Grid.Column="0">
                 <StackPanel Margin="10">
                     <TextBlock Text="Výpis dat (edit dvojklikem)" Foreground="RoyalBlue" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <ComboBox x:Name="EntityTypeCombo" ItemsSource="{Binding EntityTypes}" SelectedIndex="0"/>
-                    <Button Content="Vytvořit" Click="CreateEntityClick" Margin="0,0,0,10"/>
-                    <TextBox x:Name="FilterTextBox"/>
-                    <Button Content="Filtrovat" Click="FilterDataClick" Margin="0,0,0,10"/>
-                    <ListView x:Name="DataListView" Height="600" MouseDoubleClick="DataListView_MouseDoubleClick" SelectionChanged="DataListView_SelectionChanged">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding Id}"/>
-                                <GridViewColumn Header="Název" Width="200" DisplayMemberBinding="{Binding Name}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                    <Button Content="Vytvořit" Command="{Binding CreateEntityCommand}" CommandParameter="{Binding SelectedEntityType}" Margin="0,0,0,10"/>
+                    <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"/>
+                    <!--<Button Content="Filtrovat" Command="{Binding FilterCommand}" Margin="0,0,0,10"/>-->
+                    <DataGrid Grid.Column="0" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Jméno" Binding="{Binding FullName}" Width="100"/>
+                            <DataGridTextColumn Header="Číslo" Binding="{Binding Number}" Width="50"/>
+                            <DataGridTextColumn Header="Pozice" Binding="{Binding Position}" Width="50"/>
+                            <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="80"/>
+                            <DataGridTextColumn Header="Střelba" Binding="{Binding Shooting}" Width="50"/>
+                            <DataGridTextColumn Header="Přihrávky" Binding="{Binding Passing}" Width="50"/>
+                            <DataGridTextColumn Header="Obrana" Binding="{Binding Defending}" Width="50"/>
+                            <DataGridTextColumn Header="Bruslení" Binding="{Binding Skating}" Width="50"/>
+                            <DataGridTextColumn Header="Celk. Hodnocení" Binding="{Binding Overall}" Width="50"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    
+                    <DataGrid Grid.Column="1" ItemsSource="{Binding Teams}" SelectedItem="{Binding SelectedTeam}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Název" Binding="{Binding Name}" Width="250"/>
+                            <DataGridTextColumn Header="Výhry" Binding="{Binding Wins}" Width="80"/>
+                            <DataGridTextColumn Header="Prohry" Binding="{Binding Losses}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid Grid.Column="2" ItemsSource="{Binding Tournaments}" SelectedItem="{Binding SelectedTournament}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Název" Binding="{Binding Title}" Width="300"/>
+                            <DataGridTextColumn Header="Týmů" Binding="{Binding TeamIds.Count}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </StackPanel>
             </Border>
 
@@ -73,37 +95,37 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock x:Name="TextTeamA" Text="HOME" Grid.Row="0" Grid.Column="0" Foreground="Black" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TextTeamB" Text="AWAY" Grid.Row="0" Grid.Column="4" Foreground="Black" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding HomeTeamName}" Grid.Row="0" Grid.Column="0" Foreground="Black" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding AwayTeamName}" Grid.Row="0" Grid.Column="4" Foreground="Black" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                        <TextBlock x:Name="TextScoreA" Text="0" Grid.Row="0" Grid.Column="1" Foreground="#FFD700" FontSize="48" FontWeight="Bold" Margin="20,0"/>
-                        <TextBlock x:Name="TextScoreB" Text="0" Grid.Row="0" Grid.Column="3" Foreground="#FFD700" FontSize="48" FontWeight="Bold" Margin="20,0"/>
+                            <TextBlock Text="{Binding HomeScore}" Grid.Row="0" Grid.Column="1" Foreground="#FFD700" FontSize="48" FontWeight="Bold" Margin="20,0"/>
+                            <TextBlock Text="{Binding AwayScore}" Grid.Row="0" Grid.Column="3" Foreground="#FFD700" FontSize="48" FontWeight="Bold" Margin="20,0"/>
 
-                        <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="20,0">
-                            <TextBlock x:Name="TextTime" Text="20:00" Foreground="Red" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock x:Name="TextPeriod" Text="1st" Foreground="Black" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                        </StackPanel>
+                            <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="20,0">
+                                <TextBlock Text="{Binding GameTime}" Foreground="Red" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding PeriodText}" Foreground="Black" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="SHOTS" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TextTeamAShots" Text="0" Grid.Row="1" Grid.Column="1" Foreground="Black" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,5"/>
-                        <TextBlock x:Name="TextTeamBShots" Text="0" Grid.Row="1" Grid.Column="3" Foreground="Black" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,5"/>
-                        <TextBlock Grid.Row="1" Grid.Column="4" Text="SHOTS" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="SHOTS" Grid.Row="1" Grid.Column="0"  Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding HomeShots}" Grid.Row="1" Grid.Column="1" Foreground="Black" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,5"/>
+                            <TextBlock Text="{Binding AwayShots}" Grid.Row="1" Grid.Column="3" Foreground="Black" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,5"/>
+                            <TextBlock Text="SHOTS" Grid.Row="1" Grid.Column="4"  Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Grid>
                     </Viewbox>
                 </Border>
 
                 <DockPanel Grid.Row="1" HorizontalAlignment="Center" Margin="1">
-                    <Button x:Name="BtnStartSim" Click="StartSimulationClick" ToolTip="Začít Simulaci" IsEnabled="False">
+                    <Button Command="{Binding StartSimulationCommand}" ToolTip="Začít Simulaci">
                         <Viewbox Width="16" Height="16">
                             <Path Fill="DimGray" Data="M 0,0 L 0,12 L 10,6 Z" Margin="1"/>
                         </Viewbox>
                     </Button>
-                    <Button x:Name="BtnStopSim" Click="StopSimulationClick" ToolTip="Zastavit Simulaci" IsEnabled="False">
+                    <Button Command="{Binding StopSimulationCommand}" ToolTip="Zastavit Simulaci">
                         <Viewbox Width="16" Height="16">
                             <Path Fill="DimGray" Data="M 0,0 H 12 V 12 H 0 Z" Margin="3" />
                         </Viewbox>
                     </Button>
-                    <Button x:Name="BtnSkipSim" Click="SkipSimulationClick" ToolTip="Přeskočit simulaci" IsEnabled="False">
+                    <Button Command="{Binding SkipSimulationCommand}" ToolTip="Přeskočit simulaci">
                         <Viewbox Width="16" Height="16" >
                             <Path Fill="DimGray" Data="M 0,0 V 12 L 7,6 Z M 8,0 V 12 L 15,6 Z" Margin="1" />
                         </Viewbox>
@@ -173,16 +195,17 @@
                         <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="270" Fill="Red"/>
                         <Ellipse Width="10" Height="10" Canvas.Left="95" Canvas.Top="420" Fill="Red"/>
                         <Ellipse Width="10" Height="10" Canvas.Left="295" Canvas.Top="420" Fill="Red"/>
-                        <Border x:Name="GoalPopup" Background="#CC000000" Canvas.Left="115" Canvas.Top="178" CornerRadius="12" Padding="20" Margin="0,80,0,0" Panel.ZIndex="3" Opacity="0">
+                        <!-- Goal Popup -->
+                        <Border Background="#CC000000" Canvas.Left="115" Canvas.Top="178" CornerRadius="12" Padding="20" Margin="0,80,0,0" Panel.ZIndex="3" Opacity="0">
                             <Border.Effect>
                                 <DropShadowEffect Color="blue" ShadowDepth="3" BlurRadius="30"/>
                             </Border.Effect>
                             <StackPanel TextBlock.Foreground="White" TextBlock.FontSize="18" TextBlock.FontWeight="Bold">
                                 <TextBlock x:Name="GoalText" Text="GÓL!" FontSize="36" HorizontalAlignment="Center" Foreground="#FFD700"/>
-                                <TextBlock x:Name="ScorerText" Text="Tencodalgol (9)" HorizontalAlignment="Center" Margin="0,5"/>
+                                <TextBlock Text="{Binding CurrentGoal.Scorer.FullName}" HorizontalAlignment="Center" Margin="0,5"/>
                                 <TextBlock Text="Asistence:" HorizontalAlignment="Center" FontStyle="Italic" FontSize="16"/>
-                                <TextBlock x:Name="Assist1Text" Text="None" HorizontalAlignment="Center" FontStyle="Italic" FontSize="16"/>
-                                <TextBlock x:Name="Assist2Text" Text="Playernone" HorizontalAlignment="Center" FontStyle="Italic" FontSize="16"/>
+                                <TextBlock Text="{Binding CurrentGoal.Assist1.FullName}" HorizontalAlignment="Center" FontStyle="Italic" FontSize="16"/>
+                                <TextBlock Text="{Binding CurrentGoal.Assist2.FullName}" HorizontalAlignment="Center" FontStyle="Italic" FontSize="16"/>
                             </StackPanel>
                         </Border>
                     </Canvas>
@@ -194,10 +217,10 @@
                 <StackPanel>
                     <TextBlock Text="Statistiky hráčů" FontWeight="Bold" HorizontalAlignment="Center" Foreground="RoyalBlue" Margin="2"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <RadioButton x:Name="HomeStatsRadio" Content="Domácí" GroupName="TeamStatsSwitch" IsChecked="True" Checked="TeamStatsChecked"/>
-                        <RadioButton x:Name="AwayStatsRadio" Content="Hosté" GroupName="TeamStatsSwitch" Margin="10,0" Checked="TeamStatsChecked"/>
+                        <RadioButton Content="Domácí" IsChecked="{Binding ShowHomeStats}" GroupName="TeamStats"/>
+                        <RadioButton Content="Hosté" IsChecked="{Binding ShowAwayStats}" GroupName="TeamStats" Margin="10,0"/>
                     </StackPanel>
-                    <ListView x:Name="SkatersStatsListView" Height="300" >
+                    <ListView ItemsSource="{Binding SkaterStats}" Height="300" >
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Hráč" Width="150" DisplayMemberBinding="{Binding FullName}"/>
@@ -207,18 +230,18 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <ListView x:Name="GoaliesStatsListView" Height="100" >
+                    <ListView ItemsSource="{Binding GoalieStats}" Height="100" >
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Hráč" Width="150" DisplayMemberBinding="{Binding FullName}"/>
                                 <GridViewColumn Header="Zásahy" Width="75" DisplayMemberBinding="{Binding Saves}"/>
                                 <GridViewColumn Header="Obdržené góly" Width="75" DisplayMemberBinding="{Binding GoalsAgainst}"/>
-                                <!--<GridViewColumn Header="Úspěšnost zákroků" Width="75" DisplayMemberBinding="{Binding SavePercentage}"/>-->
+                                <GridViewColumn Header="Úspěšnost zákroků" Width="75" DisplayMemberBinding="{Binding SavePercentage, StringFormat=F2}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
                     <TextBlock Text="Zápasy turnaje" FontWeight="Bold" HorizontalAlignment="Center" Foreground="RoyalBlue" Margin="2"/>
-                    <ListBox x:Name="MatchesListBox" Height="250" SelectionChanged="MatchesListBox_SelectionChanged">
+                    <ListBox ItemsSource="{Binding CurrentMatches}" SelectedItem="{Binding SelectedMatch}" Height="250">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding}" FontWeight="SemiBold"/>
@@ -231,7 +254,7 @@
 
         <StatusBar Grid.Row="2">
             <StatusBarItem>
-                <TextBlock x:Name="StatusText" Text="Načítání..."/>
+                <TextBlock Text="{Binding StatusText}"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>
