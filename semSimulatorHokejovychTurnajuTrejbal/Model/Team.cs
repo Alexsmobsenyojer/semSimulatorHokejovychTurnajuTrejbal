@@ -10,7 +10,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         public required string Name { get; set; }
         public int Wins { get; private set; } = 0;
         public int Losses { get; private set; } = 0;
-        public required List<int> PlayerIds { get; set; }
 
         public void AddWin() {
             Wins++;

@@ -112,10 +112,44 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         }
 
         [RelayCommand]
-        private void CreateEntity(string? type) => OpenEditWindow(type, null);
+        private void CreateTournament() {
+            var vm = new CreateTournamentViewModel(
+                Teams,
+                onSave: async tournament => {
+                    await _service.AddTournamentAsync(tournament);
+                    StatusText = "Turnaj vytvořen";
+                },
+                onCancel: () => { }
+            );
+            var window = new CreateTournamentWindow(Teams) { DataContext = vm };
+            window.ShowDialog();
+        }
 
-        private void OpenEditWindow(string? type, int? id) {
-            //
+        [RelayCommand]
+        private void CreateTeam() {
+            var vm = new CreateTeamViewModel(
+                onSave: async team => {
+                    await _service.AddTeamAsync(team);
+                    StatusText = "Tým vytvořen";
+                },
+                onCancel: () => { }
+            );
+            var window = new CreateTeamWindow { DataContext = vm };
+            window.ShowDialog();
+        }
+
+        [RelayCommand]
+        private void CreatePlayer() {
+            var vm = new CreatePlayerViewModel(
+                Teams,
+                onSave: async player => {
+                    await _service.AddPlayerAsync(player);
+                    StatusText = "Hráč vytvořen";
+                },
+                onCancel: () => { }
+            );
+            var window = new CreatePlayerWindow(Teams) { DataContext = vm };
+            window.ShowDialog();
         }
 
         [RelayCommand]
@@ -140,7 +174,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             if (SelectedTournament == null) return;
             if (MessageBox.Show($"Opravdu smazat turnaj {SelectedTournament.Title}?", "Potvrzení", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
                 await _service.DeleteTournamentAsync(SelectedTournament);
-                Tournaments.Remove(SelectedTournament);
                 StatusText = $"Turnaj smazán";
             }
         }
@@ -158,7 +191,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                     }
                 }
                 await _service.DeleteTeamAsync(SelectedTeam);
-                Teams.Remove(SelectedTeam);
                 StatusText = $"Tým smazán";
             }
         }
@@ -169,7 +201,6 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             if (SelectedPlayer == null) return;
             if (MessageBox.Show($"Opravdu smazat hráče {SelectedPlayer.FullName}?", "Potvrzení", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
                 await _service.DeletePlayerAsync(SelectedPlayer);
-                Players.Remove(SelectedPlayer);
                 StatusText = $"Hráč smazán";
             }
         }

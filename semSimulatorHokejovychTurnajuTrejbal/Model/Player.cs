@@ -56,7 +56,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
         public int Id { get; init; }
         public string FullName { get; set; }
         public int Number { get; set; }
-
+        public int TeamId { get; set; }
     }
    
     public class Skater : Player {

@@ -69,8 +69,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
             _match = match;
             _homeTeam = allTeams.First(t => t.Id == match.HomeTeamId);
             _awayTeam = allTeams.First(t => t.Id == match.AwayTeamId);
-            _homePlayers = _homeTeam.PlayerIds.Select(id => allPlayers.First(p => p.Id == id)).ToList();
-            _awayPlayers = _awayTeam.PlayerIds.Select(id => allPlayers.First(p => p.Id == id)).ToList();
+            _homePlayers = allPlayers.Where(p => p.TeamId == _homeTeam.Id).ToList();
+            _awayPlayers = allPlayers.Where(p => p.TeamId == _awayTeam.Id).ToList();
         }
 
         public void StartMatch() {
