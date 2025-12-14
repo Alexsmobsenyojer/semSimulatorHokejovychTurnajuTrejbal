@@ -126,8 +126,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 onSave: async tournament => {
                     await _service.AddTournamentAsync(tournament);
                     StatusText = "Turnaj vytvořen";
-                },
-                onCancel: () => { }
+                }
             );
             var window = new CreateTournamentWindow(Teams) { DataContext = vm };
             window.ShowDialog();
@@ -139,8 +138,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 onSave: async team => {
                     await _service.AddTeamAsync(team);
                     StatusText = "Tým vytvořen";
-                },
-                onCancel: () => { }
+                }
             );
             var window = new CreateTeamWindow { DataContext = vm };
             window.ShowDialog();
@@ -153,8 +151,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 onSave: async player => {
                     await _service.AddPlayerAsync(player);
                     StatusText = "Hráč vytvořen";
-                },
-                onCancel: () => { }
+                }
             );
             var window = new CreatePlayerWindow(Teams) { DataContext = vm };
             window.ShowDialog();
@@ -300,8 +297,13 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 _simulation.DrawPlayerRequested += mainWindow.DrawPlayer;
                 _simulation.ClearCanvasRequested += mainWindow.ClearPlayers;
             }
-            _simulation.StartMatch();
-            IsSimulationEnabled = true;
+            try {
+                _simulation.StartMatch();
+                IsSimulationEnabled = true;
+            } catch(Exception ex) {
+                MessageBox.Show(ex.Message);
+            }
+
         }
         partial void OnShowHomeStatsChanged(bool value) {
             if (value) {

@@ -74,6 +74,9 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         }
 
         public void StartMatch() {
+            ValidateTeam(_homePlayers, _homeTeam.Name);
+            ValidateTeam(_awayPlayers, _awayTeam.Name);
+
             homeCenters = PickSkaters(_homePlayers, Position.C, 4);
             homeLeftWingers = PickSkaters(_homePlayers, Position.LW, 4);
             homeRightWingers = PickSkaters(_homePlayers, Position.RW, 4);
@@ -109,6 +112,24 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
                 _homeTeam.AddLoss();
                 _awayTeam.AddWin();
             }
+        }
+
+        private void ValidateTeam(List<Player> players, string teamName) {
+            var skaters = players.OfType<Skater>().ToList();
+            var goalies = players.OfType<Goalie>().Count();
+
+            if (goalies < 1)
+                throw new InvalidOperationException($"{teamName} nemá žádného brankáře – zápas nelze spustit.");
+            if (skaters.Count(s => s.Position == Position.C) < 4)
+                throw new InvalidOperationException($"{teamName} má méně než 4 centry – zápas nelze spustit.");
+            if (skaters.Count(s => s.Position == Position.LW) < 4)
+                throw new InvalidOperationException($"{teamName} má méně než 4 levá křídla – zápas nelze spustit.");
+            if (skaters.Count(s => s.Position == Position.RW) < 4)
+                throw new InvalidOperationException($"{teamName} má méně než 4 pravá křídla – zápas nelze spustit.");
+            if (skaters.Count(s => s.Position == Position.LD) < 3)
+                throw new InvalidOperationException($"{teamName} má méně než 3 levé obránce – zápas nelze spustit.");
+            if (skaters.Count(s => s.Position == Position.RD) < 3)
+                throw new InvalidOperationException($"{teamName} má méně než 3 pravé obránce – zápas nelze spustit.");
         }
         private List<Skater> PickSkaters(List<Player> players, Position position, int count) {
             return players

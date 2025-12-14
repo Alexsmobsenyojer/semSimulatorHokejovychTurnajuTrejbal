@@ -20,7 +20,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
     public partial class CreateTeamWindow : Window {
         public CreateTeamWindow() {
             InitializeComponent();
-            DataContext = new CreateTeamViewModel(onSave: team => Close(), onCancel: () => Close());
+            DataContext = new CreateTeamViewModel(onSave: team => DialogResult=true);
         }
     }
 }

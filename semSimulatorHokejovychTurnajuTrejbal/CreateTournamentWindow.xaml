@@ -29,15 +29,15 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Team.Name}"/>
+                        <TextBlock Text="{Binding Team.Name, UpdateSourceTrigger=PropertyChanged}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-            <Button Content="Uložit" Command="{Binding SaveCommand}" Width="100" Margin="0,0,10,0"/>
-            <Button Content="Zrušit" Command="{Binding CancelCommand}" Width="100"/>
+            <Button Content="Uložit" Command="{Binding SaveCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,10,0"/>
+            <Button Content="Zrušit" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100"/>
         </StackPanel>
     </Grid>
 </Window>

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 
 namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
@@ -27,16 +28,14 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
         public List<Position> Positions => Enum.GetValues<Position>().ToList();
 
         private readonly Action<Player> _onSave;
-        private readonly Action _onCancel;
 
-        public CreatePlayerViewModel(IEnumerable<Team> allTeams, Action<Player> onSave, Action onCancel) {
+        public CreatePlayerViewModel(IEnumerable<Team> allTeams, Action<Player> onSave) {
             _onSave = onSave;
-            _onCancel = onCancel;
             AllTeams = new ObservableCollection<Team>(allTeams);
         }
 
         [RelayCommand(CanExecute = nameof(HasTeam))]
-        private void Save() {
+        private void Save(Window window) {
             Player player = IsSkater ? new Skater() : new Goalie();
 
             player.FullName = FullName;
@@ -54,9 +53,10 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
             }
 
             _onSave(player);
+            window.Close();
         }
 
         [RelayCommand]
-        private void Cancel() => _onCancel();
+        private void Cancel(Window window) => window.Close();
     }
 }

@@ -1,23 +1,25 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Windows;
 
 namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
     public partial class CreateTeamViewModel : ObservableObject {
-        [ObservableProperty] private string name = "";
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand))] 
+        private string name = "";
         private readonly Action<Team> _onSave;
-        private readonly Action _onCancel;
 
-        public CreateTeamViewModel( Action<Team> onSave, Action onCancel) {
+        public CreateTeamViewModel( Action<Team> onSave) {
             _onSave = onSave;
-            _onCancel = onCancel;
+        }
+        private bool CanSave() => !string.IsNullOrWhiteSpace(Name);
+        [RelayCommand(CanExecute = nameof(CanSave))]
+        private void Save(Window window) {
+            _onSave?.Invoke(new Team { Name = Name.Trim() });
+            window.Close();
         }
 
         [RelayCommand]
-        private void Save() {
-            _onSave(new Team { Name = Name });
-        }
-
-        [RelayCommand]
-        private void Cancel() => _onCancel();
+        private void Cancel(Window window) => window.Close();
     }
 }

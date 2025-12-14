@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 
 namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
@@ -15,19 +16,17 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
         private string title = "";
         public ObservableCollection<Team> AllTeams { get; }
         private readonly Action<Tournament> _onSave;
-        private readonly Action _onCancel;
         public ObservableCollection<TeamSelection> TeamSelections { get; }
 
 
-        public CreateTournamentViewModel( IEnumerable<Team> allTeams, Action<Tournament> onSave, Action onCancel) {
+        public CreateTournamentViewModel( IEnumerable<Team> allTeams, Action<Tournament> onSave) {
             _onSave = onSave;
-            _onCancel = onCancel;
             AllTeams = new ObservableCollection<Team>(allTeams);
             TeamSelections = new ObservableCollection<TeamSelection>(allTeams.Select(t => new TeamSelection(t)));
         }
         private bool CanSave() => !string.IsNullOrWhiteSpace(Title);
         [RelayCommand(CanExecute = nameof(CanSave))]
-        private void Save() {
+        private void Save(Window window) {
             if( TeamSelections.Count(x => x.IsSelected) < 2) {
                 System.Windows.MessageBox.Show("Vyberte alespoň dva týmy", "Nedostatečný počet týmů", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 return;
@@ -44,10 +43,11 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
                         Title = $"{AllTeams.First(team => team.Id == t.TeamIds[i]).Name} vs {AllTeams.First(team => team.Id == t.TeamIds[j]).Name}"
                     });
 
-            _onSave(t);
+            _onSave.Invoke(t);
+            window.Close();
         }
 
         [RelayCommand]
-        private void Cancel() => _onCancel();
+        private void Cancel(Window window) => window.Close();
     }
 }
