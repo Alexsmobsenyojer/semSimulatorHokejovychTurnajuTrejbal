@@ -109,7 +109,11 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
 
         [RelayCommand]
         private void Exit() => Application.Current.Shutdown();
-
+        [RelayCommand]
+        private async Task UpdateDatabase() { 
+            await _service.SaveAllAsync();
+            StatusText = "Vše uloženo do databáze";
+        }
         [RelayCommand]
         private void DeleteDatabase() {
             if (MessageBox.Show("Smazat databázi?", "Potvrzení", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
@@ -260,7 +264,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 CurrentMatches.Clear();
                 return;
             }
-            var matches = value.Matches.Where(m => !m.WasPlayed).ToList();
+            var matches = value.Matches.ToList();
             CurrentMatches = new ObservableCollection<Match>(matches);
         }
 

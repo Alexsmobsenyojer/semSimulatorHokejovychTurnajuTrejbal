@@ -40,6 +40,14 @@ namespace semSimulatorHokejovychTurnajuTrejbal.Model {
             foreach (var tournament in tournaments) Tournaments.Add(tournament);
         }
 
+        public async Task SaveAllAsync() {
+            await Task.WhenAll(
+                TeamsTable.UpsertAsync(Teams),
+                PlayersTable.UpsertAsync(Players),
+                TournamentsTable.UpsertAsync(Tournaments)
+            );
+        }
+
         public async Task ExportToJsonAsync(IEnumerable<Player> players, IEnumerable<Team> teams, IEnumerable<Tournament> tournaments) {
             var dialog = new SaveFileDialog { FileName = "hockey_data.json", Filter = "JSON soubory (*.json)|*.json|Všechny soubory (*.*)|*.*" };
             if (dialog.ShowDialog() == true) {

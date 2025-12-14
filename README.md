@@ -37,7 +37,7 @@ Simulátor hokejových turnajů
 7. **Persistience dat**  
    - Použití LiteDB (lokální NoSQL databáze)  
 
-## Návod na spuštění a používání
+## Návod na spuštění a používání (lze využít testingData.jsonu v rootu projektu)
 
 1. **Vytvoření turnaje**  
    - Vyžaduje výběr minimálně 2 týmů  

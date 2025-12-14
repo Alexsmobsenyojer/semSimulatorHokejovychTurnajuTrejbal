@@ -22,7 +22,8 @@
                 <Separator/>
                 <MenuItem Header="Konec" Command="{Binding ExitCommand}"/>
             </MenuItem>
-            <MenuItem Header="Možnosti">
+            <MenuItem Header="Databáze">
+                <MenuItem Header="Zálohovat" Command="{Binding UpdateDatabaseCommand}"/>
                 <MenuItem Header="Smazat databázi" Command="{Binding DeleteDatabaseCommand}"/>
             </MenuItem>
         </Menu>

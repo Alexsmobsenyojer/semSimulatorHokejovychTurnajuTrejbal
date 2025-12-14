@@ -1,0 +1,127 @@
+{
+  "Players": [
+    { "$type": "skater", "Id": 1,  "FullName": "Jason Robertson",  "Number": 21, "TeamId": 1, "Position": "C",  "Role": "Playmaker", "Shooting": 88, "Passing": 92, "Defending": 78, "Skating": 85, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 2,  "FullName": "Wyatt Johnston",   "Number": 53, "TeamId": 1, "Position": "C",  "Role": "TwoWay",    "Shooting": 92, "Passing": 82, "Defending": 84, "Skating": 88, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 3,  "FullName": "Matt Duchene",     "Number": 95, "TeamId": 1, "Position": "C",  "Role": "Sniper",    "Shooting": 86, "Passing": 85, "Defending": 72, "Skating": 86, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 4,  "FullName": "Roope Hintz",      "Number": 24, "TeamId": 1, "Position": "C",  "Role": "TwoWay",    "Shooting": 87, "Passing": 84, "Defending": 79, "Skating": 91, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 5,  "FullName": "Jamie Benn",       "Number": 14, "TeamId": 1, "Position": "LW", "Role": "Playmaker", "Shooting": 84, "Passing": 88, "Defending": 85, "Skating": 80, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 6,  "FullName": "Mason Marchment",  "Number": 27, "TeamId": 1, "Position": "LW", "Role": "Sniper",    "Shooting": 84, "Passing": 78, "Defending": 70, "Skating": 82, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 7,  "FullName": "Evgenii Dadonov",  "Number": 63, "TeamId": 1, "Position": "LW", "Role": "TwoWay",    "Shooting": 80, "Passing": 79, "Defending": 68, "Skating": 81, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 8,  "FullName": "Ty Dellandrea",    "Number": 10, "TeamId": 1, "Position": "LW", "Role": "TwoWay",    "Shooting": 76, "Passing": 74, "Defending": 78, "Skating": 85, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 9,  "FullName": "Mikko Rantanen",   "Number": 16, "TeamId": 1, "Position": "RW", "Role": "Sniper",    "Shooting": 91, "Passing": 93, "Defending": 82, "Skating": 88, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 10, "FullName": "Tyler Seguin",     "Number": 91, "TeamId": 1, "Position": "RW", "Role": "TwoWay",    "Shooting": 88, "Passing": 85, "Defending": 76, "Skating": 84, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 11, "FullName": "Logan Stankoven",  "Number": 11, "TeamId": 1, "Position": "RW", "Role": "Sniper",    "Shooting": 83, "Passing": 80, "Defending": 70, "Skating": 88, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 12, "FullName": "Sam Steel",        "Number": 18, "TeamId": 1, "Position": "RW", "Role": "TwoWay",    "Shooting": 75, "Passing": 78, "Defending": 74, "Skating": 90, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 13, "FullName": "Miro Heiskanen",   "Number": 4,  "TeamId": 1, "Position": "LD", "Role": "Offensive", "Shooting": 82, "Passing": 93, "Defending": 93, "Skating": 92, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 14, "FullName": "Thomas Harley",    "Number": 55, "TeamId": 1, "Position": "LD", "Role": "TwoWay",    "Shooting": 83, "Passing": 85, "Defending": 82, "Skating": 89, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 15, "FullName": "Esa Lindell",      "Number": 23, "TeamId": 1, "Position": "LD", "Role": "Defensive", "Shooting": 75, "Passing": 80, "Defending": 95, "Skating": 83, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 16, "FullName": "Jani Hakanpää",    "Number": 2,  "TeamId": 1, "Position": "RD", "Role": "Defensive", "Shooting": 68, "Passing": 72, "Defending": 85, "Skating": 78, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 17, "FullName": "Nils Lundkvist",   "Number": 5,  "TeamId": 1, "Position": "RD", "Role": "Offensive", "Shooting": 76, "Passing": 82, "Defending": 75, "Skating": 86, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 18, "FullName": "Ryan Suter",       "Number": 20, "TeamId": 1, "Position": "RD", "Role": "TwoWay",    "Shooting": 72, "Passing": 84, "Defending": 88, "Skating": 79, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "goalie", "Id": 19, "FullName": "Jake Oettinger",   "Number": 29, "TeamId": 1, "Position": "G",  "Overall": 92, "Stats": { "Saves": 0, "GoalsAgainst": 0, "Shutouts": 0 } },
+    { "$type": "goalie", "Id": 20, "FullName": "Scott Wedgewood",  "Number": 41, "TeamId": 1, "Position": "G",  "Overall": 80, "Stats": { "Saves": 0, "GoalsAgainst": 0, "Shutouts": 0 } },
+    { "$type": "skater", "Id": 21, "FullName": "Captain Yeet",         "Number": 99, "TeamId": 2, "Position": "C",  "Role": "Playmaker", "Shooting": 70, "Passing": 95, "Defending": 60, "Skating": 88, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 22, "FullName": "Sir Slay-a-Lot",       "Number": 77, "TeamId": 2, "Position": "C",  "Role": "Sniper",    "Shooting": 92, "Passing": 75, "Defending": 65, "Skating": 80, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 23, "FullName": "Lord of the Rizz",     "Number": 33, "TeamId": 2, "Position": "C",  "Role": "TwoWay",    "Shooting": 78, "Passing": 82, "Defending": 76, "Skating": 84, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 24, "FullName": "Duke of Dunk",         "Number": 11, "TeamId": 2, "Position": "C",  "Role": "Playmaker", "Shooting": 68, "Passing": 90, "Defending": 70, "Skating": 82, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 25, "FullName": "The Vibe Checker",     "Number": 44, "TeamId": 2, "Position": "LW", "Role": "Sniper",    "Shooting": 88, "Passing": 70, "Defending": 62, "Skating": 90, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 26, "FullName": "Mister Meme",          "Number": 69, "TeamId": 2, "Position": "LW", "Role": "TwoWay",    "Shooting": 75, "Passing": 78, "Defending": 72, "Skating": 85, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 27, "FullName": "Prince of Puns",       "Number": 22, "TeamId": 2, "Position": "LW", "Role": "Playmaker", "Shooting": 66, "Passing": 86, "Defending": 68, "Skating": 83, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 28, "FullName": "King of Clapbacks",    "Number": 55, "TeamId": 2, "Position": "LW", "Role": "Sniper",    "Shooting": 85, "Passing": 72, "Defending": 64, "Skating": 87, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 29, "FullName": "The Gigachad",         "Number": 88, "TeamId": 2, "Position": "RW", "Role": "Sniper",    "Shooting": 94, "Passing": 70, "Defending": 68, "Skating": 82, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 30, "FullName": "Lord of Laughter",     "Number": 15, "TeamId": 2, "Position": "RW", "Role": "TwoWay",    "Shooting": 76, "Passing": 80, "Defending": 74, "Skating": 86, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 31, "FullName": "Master of Mayhem",     "Number": 37, "TeamId": 2, "Position": "RW", "Role": "Playmaker", "Shooting": 72, "Passing": 88, "Defending": 66, "Skating": 84, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 32, "FullName": "Baron of Banter",      "Number": 66, "TeamId": 2, "Position": "RW", "Role": "Sniper",    "Shooting": 84, "Passing": 74, "Defending": 70, "Skating": 88, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 33, "FullName": "Sir Shield",           "Number": 3,  "TeamId": 2, "Position": "LD", "Role": "Defensive", "Shooting": 65, "Passing": 78, "Defending": 92, "Skating": 80, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 34, "FullName": "The Wall",             "Number": 45, "TeamId": 2, "Position": "LD", "Role": "TwoWay",    "Shooting": 70, "Passing": 82, "Defending": 85, "Skating": 83, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 35, "FullName": "Guardian of Goals",    "Number": 28, "TeamId": 2, "Position": "LD", "Role": "Offensive", "Shooting": 74, "Passing": 86, "Defending": 78, "Skating": 87, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 36, "FullName": "Iron Curtain",         "Number": 7,  "TeamId": 2, "Position": "RD", "Role": "Defensive", "Shooting": 62, "Passing": 75, "Defending": 94, "Skating": 76, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 37, "FullName": "The Fortress",         "Number": 50, "TeamId": 2, "Position": "RD", "Role": "TwoWay",    "Shooting": 68, "Passing": 80, "Defending": 88, "Skating": 81, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 38, "FullName": "Tower of Power",       "Number": 19, "TeamId": 2, "Position": "RD", "Role": "Offensive", "Shooting": 76, "Passing": 84, "Defending": 76, "Skating": 85, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "goalie", "Id": 39, "FullName": "Net Ninja",            "Number": 1,  "TeamId": 2, "Position": "G",  "Overall": 88, "Stats": { "Saves": 0, "GoalsAgainst": 0, "Shutouts": 0 } },
+    { "$type": "goalie", "Id": 40, "FullName": "Brick Wall Jr.",       "Number": 35, "TeamId": 2, "Position": "G",  "Overall": 75, "Stats": { "Saves": 0, "GoalsAgainst": 0, "Shutouts": 0 } },
+    { "$type": "skater", "Id": 41, "FullName": "Petr Chlan", "Number": 15, "TeamId": 3, "Position": "LW", "Role": "Playmaker", "Shooting": 68, "Passing": 72, "Defending": 62, "Skating": 70, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 42, "FullName": "Martin Tůma", "Number": 18, "TeamId": 3, "Position": "LW", "Role": "Sniper", "Shooting": 70, "Passing": 65, "Defending": 60, "Skating": 68, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 43, "FullName": "Dominik Sklenář", "Number": 6, "TeamId": 3, "Position": "LW", "Role": "TwoWay", "Shooting": 65, "Passing": 68, "Defending": 66, "Skating": 69, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 44, "FullName": "Filip Helt", "Number": 23, "TeamId": 3, "Position": "LW", "Role": "TwoWay", "Shooting": 62, "Passing": 64, "Defending": 70, "Skating": 67, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 45, "FullName": "Karri Forsblom", "Number": 12, "TeamId": 3, "Position": "C", "Role": "Playmaker", "Shooting": 66, "Passing": 73, "Defending": 64, "Skating": 68, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 46, "FullName": "Tadeáš Svoboda", "Number": 66, "TeamId": 3, "Position": "C", "Role": "TwoWay", "Shooting": 67, "Passing": 70, "Defending": 68, "Skating": 69, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 47, "FullName": "Josef Chládek", "Number": 28, "TeamId": 3, "Position": "C", "Role": "Sniper", "Shooting": 71, "Passing": 66, "Defending": 62, "Skating": 67, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 48, "FullName": "Martin Havelka", "Number": 75, "TeamId": 3, "Position": "C", "Role": "TwoWay", "Shooting": 63, "Passing": 65, "Defending": 69, "Skating": 66, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 49, "FullName": "Petr Kratochvíl", "Number": 89, "TeamId": 3, "Position": "RW", "Role": "Sniper", "Shooting": 72, "Passing": 67, "Defending": 61, "Skating": 70, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 50, "FullName": "Matias Lehtonen", "Number": 91, "TeamId": 3, "Position": "RW", "Role": "Playmaker", "Shooting": 69, "Passing": 71, "Defending": 63, "Skating": 68, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 51, "FullName": "Krystof Ouřada", "Number": 91, "TeamId": 3, "Position": "RW", "Role": "TwoWay", "Shooting": 66, "Passing": 68, "Defending": 67, "Skating": 69, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 52, "FullName": "Tomas Koblizek", "Number": 20, "TeamId": 3, "Position": "RW", "Role": "TwoWay", "Shooting": 64, "Passing": 65, "Defending": 70, "Skating": 66, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 53, "FullName": "Patrik Kadeřávek", "Number": 5, "TeamId": 3, "Position": "LD", "Role": "Defensive", "Shooting": 62, "Passing": 68, "Defending": 72, "Skating": 65, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 54, "FullName": "Radek Havel", "Number": 8, "TeamId": 3, "Position": "LD", "Role": "Offensive", "Shooting": 65, "Passing": 70, "Defending": 68, "Skating": 67, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 55, "FullName": "Tadeáš Hejda", "Number": 4, "TeamId": 3, "Position": "LD", "Role": "TwoWay", "Shooting": 63, "Passing": 67, "Defending": 69, "Skating": 66, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 56, "FullName": "Petr Ulrych", "Number": 3, "TeamId": 3, "Position": "RD", "Role": "Defensive", "Shooting": 61, "Passing": 66, "Defending": 73, "Skating": 64, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 57, "FullName": "Ondřej Baláž", "Number": 21, "TeamId": 3, "Position": "RD", "Role": "Offensive", "Shooting": 67, "Passing": 69, "Defending": 65, "Skating": 68, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "skater", "Id": 58, "FullName": "Vojtěch Husinecký", "Number": 7, "TeamId": 3, "Position": "RD", "Role": "TwoWay", "Shooting": 64, "Passing": 67, "Defending": 68, "Skating": 66, "Stats": { "Goals": 0, "Assists": 0, "Shots": 0 } },
+    { "$type": "goalie", "Id": 59, "FullName": "Pavel Jekel", "Number": 30, "TeamId": 3, "Position": "G", "Overall": 68, "Stats": { "Saves": 0, "GoalsAgainst": 0, "Shutouts": 0 } },
+    { "$type": "goalie", "Id": 60, "FullName": "Richard Běhula", "Number": 31, "TeamId": 3, "Position": "G", "Overall": 65, "Stats": { "Saves": 0, "GoalsAgainst": 0, "Shutouts": 0 } }
+  ],
+
+  "Teams": [
+    {
+      "Id": 1,
+      "Name": "Dallas Stars",
+      "Wins": 0,
+      "Losses": 0
+    },
+    {
+      "Id": 2,
+      "Name": "Meme Squad",
+      "Wins": 0,
+      "Losses": 0
+    },
+    {
+      "Id": 3,
+      "Name": "Piráti Chomutov",
+      "Wins": 0,
+      "Losses": 0
+    }
+  ],
+  "Tournaments": [
+    {
+      "Id": 1,
+      "Title": "Dallas Stars vs Meme Squad vs Piráti Chomutov",
+      "TeamIds": [1, 2, 3],
+      "Matches": [
+        {
+          "Id": 1,
+          "HomeTeamId": 1,
+          "AwayTeamId": 2,
+          "Title": "Dallas Stars vs Meme Squad - Zápas 1",
+          "HomeScore": 0,
+          "AwayScore": 0,
+          "HomeShots": 0,
+          "AwayShots": 0,
+          "wasPlayed": false
+        },
+        {
+          "Id": 2,
+          "HomeTeamId": 1,
+          "AwayTeamId": 3,
+          "Title": "Dallas Stars vs Piráti Chomutov - Zápas 2",
+          "HomeScore": 0,
+          "AwayScore": 0,
+          "HomeShots": 0,
+          "AwayShots": 0,
+          "wasPlayed": false
+        },
+        {
+          "Id": 3,
+          "HomeTeamId": 2,
+          "AwayTeamId": 3,
+          "Title": "Meme Squad vs Piráti Chomutov - Zápas 3",
+          "HomeScore": 0,
+          "AwayScore": 0,
+          "HomeShots": 0,
+          "AwayShots": 0,
+          "wasPlayed": false
+        }
+      ]
+    }
+  ]
+}
