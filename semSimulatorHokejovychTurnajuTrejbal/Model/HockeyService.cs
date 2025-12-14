@@ -29,14 +29,14 @@ namespace semSimulatorHokejovychTurnajuTrejbal.Model {
         }
 
         public async Task LoadAllAsync() {
-            var players = await PlayersTable.FindAllAsync();
             var teams = await TeamsTable.FindAllAsync();
+            var players = await PlayersTable.Include(p => p.Team).FindAllAsync();
             var tournaments = await TournamentsTable.FindAllAsync();
             Players.Clear();
             Teams.Clear();
             Tournaments.Clear();
-            foreach (var player in players) Players.Add(player);
             foreach (var team in teams) Teams.Add(team);
+            foreach (var player in players) Players.Add(player);
             foreach (var tournament in tournaments) Tournaments.Add(tournament);
         }
 
@@ -60,12 +60,15 @@ namespace semSimulatorHokejovychTurnajuTrejbal.Model {
                     var json = await File.ReadAllTextAsync(dialog.FileName);
                     var data = JsonSerializer.Deserialize<JsonData>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     if (data is not null) {
-                        if (data.Players?.Count != 0) await PlayersTable.InsertBulkAsync(data.Players);
+                        if (data.Players?.Count != 0) {
+                            data.Players!.ForEach(p => p.Team = data.Teams.FirstOrDefault(t => t.Id == p.TeamId));
+                            await PlayersTable.InsertBulkAsync(data.Players); 
+                        }
                         if (data.Teams?.Count != 0) await TeamsTable.InsertBulkAsync(data.Teams);
                         if (data.Tournaments?.Count != 0) await TournamentsTable.InsertBulkAsync(data.Tournaments);
                     }
                 } catch (Exception ex) {
-                    MessageBox.Show($"Chyba při načítání: {ex.Message}");
+                    MessageBox.Show($"Chyba při načítání: {ex.Message}{ex.InnerException?.Message}");
                 }
             }
         }

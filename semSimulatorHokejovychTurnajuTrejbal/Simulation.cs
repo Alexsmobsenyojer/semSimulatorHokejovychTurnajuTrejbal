@@ -44,14 +44,14 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
             if (assist2 != null) assist2.Stats.AddAssist();
         }
     }
-    partial class Simulation{
+    partial class Simulation {
         private readonly Match _match;
         private readonly Random _rand = new();
         private Team _homeTeam;
         private Team _awayTeam;
         private List<Player> _homePlayers;
         private List<Player> _awayPlayers;
-        private List<Skater> homeCenters, homeLeftWingers, homeRightWingers, homeLeftDefensemen, homeRightDefensemen, 
+        private List<Skater> homeCenters, homeLeftWingers, homeRightWingers, homeLeftDefensemen, homeRightDefensemen,
             awayCenters, awayLeftWingers, awayRightWingers, awayLeftDefensemen, awayRightDefensemen;
         private Goalie homeGoalie, awayGoalie;
         private Skater homeC, homeLW, homeRW, homeLD, homeRD;
@@ -69,8 +69,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
             _match = match;
             _homeTeam = allTeams.First(t => t.Id == match.HomeTeamId);
             _awayTeam = allTeams.First(t => t.Id == match.AwayTeamId);
-            _homePlayers = allPlayers.Where(p => p.TeamId == _homeTeam.Id).ToList();
-            _awayPlayers = allPlayers.Where(p => p.TeamId == _awayTeam.Id).ToList();
+            _homePlayers = allPlayers.Where(p => p.Team!.Id == _homeTeam.Id).ToList();
+            _awayPlayers = allPlayers.Where(p => p.Team!.Id == _awayTeam.Id).ToList();
         }
 
         public void StartMatch() {
@@ -99,6 +99,16 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
         }
         public void RefreshStats() {
             RaiseStatsUpdated();
+        }
+        public void recordOutcome() {
+            if (_match.HomeScore > _match.AwayScore) {
+                _homeTeam.AddWin();
+                _awayTeam.AddLoss();
+            }
+            if (_match.AwayScore > _match.HomeScore) {
+                _homeTeam.AddLoss();
+                _awayTeam.AddWin();
+            }
         }
         private List<Skater> PickSkaters(List<Player> players, Position position, int count) {
             return players
@@ -180,7 +190,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
                 return list.Last();
             }
 
-            Skater PickAssister(List<Skater> list, Skater exclude, Skater exclude2=null) {
+            Skater PickAssister(List<Skater> list, Skater exclude, Skater exclude2 = null) {
                 var candidates = list.Where(p => p != exclude && p != exclude2).ToList();
                 var weights = candidates.Select(s => Math.Max(1.0, 1.5 * s.Passing + 0.5 * s.Overall)).ToArray();
                 double total = weights.Sum();

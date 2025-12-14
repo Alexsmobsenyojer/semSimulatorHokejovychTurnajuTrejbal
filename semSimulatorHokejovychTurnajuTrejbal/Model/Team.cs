@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace semSimulatorHokejovychTurnajuTrejbal {
-    public class Team {
+    public partial class Team : ObservableObject
+    {
         public int Id { get; init; }
         public required string Name { get; set; }
-        public int Wins { get; private set; } = 0;
-        public int Losses { get; private set; } = 0;
 
-        public void AddWin() {
-            Wins++;
-        }
-        public void AddLoss() {
-            Losses++;
-        }
+        [ObservableProperty]
+        private int wins = 0;
+
+        [ObservableProperty]
+        private int losses = 0;
+
+        public void AddWin() => Wins++;
+
+        public void AddLoss() => Losses++;
     }
 }

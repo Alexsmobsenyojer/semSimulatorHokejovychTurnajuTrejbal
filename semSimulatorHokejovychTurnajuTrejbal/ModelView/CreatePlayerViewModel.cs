@@ -41,7 +41,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
 
             player.FullName = FullName;
             player.Number = Number;
-            player.TeamId = SelectedTeam!.Id;
+            player.Team = SelectedTeam!;
             if (player is Skater skater) {
                 skater.Position = Position;
                 skater.Role = Role;

@@ -69,7 +69,7 @@
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Opacity="{Binding ShowPlayers}" Panel.ZIndex="{Binding ShowPlayers}">
-                            <DataGrid ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Height="590">
+                            <DataGrid ItemsSource="{Binding Skaters}" SelectedItem="{Binding SelectedPlayer}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Height="440">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
                                     <DataGridTextColumn Header="Jméno" Binding="{Binding FullName}" Width="100"/>
@@ -80,9 +80,20 @@
                                     <DataGridTextColumn Header="Přihrávky" Binding="{Binding Passing}" Width="50"/>
                                     <DataGridTextColumn Header="Obrana" Binding="{Binding Defending}" Width="50"/>
                                     <DataGridTextColumn Header="Bruslení" Binding="{Binding Skating}" Width="50"/>
-                                    <DataGridTextColumn Header="Celk. Hodnocení" Binding="{Binding Overall}" Width="50"/>
+                                    <DataGridTextColumn Header="Celk. Hodnocení" Binding="{Binding Overall}" IsReadOnly="True" Width="50"/>
+                                    <DataGridTextColumn Header="Tým" Binding="{Binding Team.Name}" IsReadOnly="True" Width="150"/>
                                 </DataGrid.Columns>
                             </DataGrid>
+                            <DataGrid ItemsSource="{Binding Goalies}" SelectedItem="{Binding SelectedPlayer}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Height="150">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
+                                    <DataGridTextColumn Header="Jméno" Binding="{Binding FullName}" Width="180"/>
+                                    <DataGridTextColumn Header="Číslo" Binding="{Binding Number}" Width="60"/>
+                                    <DataGridTextColumn Header="Hodnocení" Binding="{Binding Overall}" Width="100"/>
+                                    <DataGridTextColumn Header="Tým" Binding="{Binding Team.Name}" Width="150"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <!-- rozdělit skaters a goalies-->
                             <StackPanel Orientation="Vertical">
                                 <Button Content="Vytvořit" Command="{Binding CreatePlayerCommand}" Margin="5"/>
                                 <Button Content="Odstranit" Command="{Binding DeletePlayerCommand}" Margin="5"/>
@@ -236,7 +247,7 @@
                     <TextBlock Text="Statistiky hráčů" FontWeight="Bold" HorizontalAlignment="Center" Foreground="RoyalBlue" Margin="2"/>
                     <CheckBox Content="Domácí" IsChecked="{Binding ShowHomeStats}"/>
                     <Grid>
-                        <StackPanel Opacity="{Binding VisibilityHomeStats}">
+                        <StackPanel Opacity="{Binding VisibilityHomeStats}" Panel.ZIndex="{Binding VisibilityHomeStats}">
                             <ListView ItemsSource="{Binding SkStatsHome}" Height="300" >
                                 <ListView.View>
                                     <GridView>
@@ -258,7 +269,7 @@
                                 </ListView.View>
                             </ListView>
                         </StackPanel>
-                        <StackPanel Orientation="Vertical" Opacity="{Binding VisibilityAwayStats}">
+                        <StackPanel Orientation="Vertical" Opacity="{Binding VisibilityAwayStats}" Panel.ZIndex="{Binding VisibilityAwayStats}">
                             <ListView ItemsSource="{Binding SkStatsAway}" Height="300" >
                                 <ListView.View>
                                     <GridView>
@@ -282,7 +293,7 @@
                         </StackPanel>
                     </Grid>
                     <TextBlock Text="Zápasy turnaje" FontWeight="Bold" HorizontalAlignment="Center" Foreground="RoyalBlue" Margin="2"/>
-                    <ListBox ItemsSource="{Binding CurrentMatches}" SelectedItem="{Binding SelectedMatch}" Height="250">
+                    <ListBox ItemsSource="{Binding CurrentMatches}" SelectedItem="{Binding SelectedMatch}" IsEnabled="{Binding IsMatchListEnabled}" Height="250">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding}" FontWeight="SemiBold"/>

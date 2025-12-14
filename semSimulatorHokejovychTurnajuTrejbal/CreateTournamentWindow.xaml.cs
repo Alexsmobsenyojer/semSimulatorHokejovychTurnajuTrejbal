@@ -21,7 +21,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal {
     public partial class CreateTournamentWindow : Window {
         public CreateTournamentWindow(ObservableCollection<Team> allTeams) {
             InitializeComponent();
-            DataContext = new CreateTournamentViewModel(allTeams:allTeams, onSave: team => Close(), onCancel: () => Close());
+            DataContext = new CreateTournamentViewModel(allTeams:allTeams, onSave: _ => Close(), onCancel: Close);
         }
     }
 }

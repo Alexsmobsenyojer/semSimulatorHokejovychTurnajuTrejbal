@@ -4,22 +4,35 @@ using System.Collections.ObjectModel;
 
 
 namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
+    public partial class TeamSelection : ObservableObject {
+        public Team Team { get; }
+        [ObservableProperty] private bool isSelected;
+        public TeamSelection(Team team) => Team = team;
+    };
     public partial class CreateTournamentViewModel : ObservableObject {
-        [ObservableProperty] private string title = "";
-        [ObservableProperty] private List<Team> selectedTeams = new();
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+        private string title = "";
         public ObservableCollection<Team> AllTeams { get; }
         private readonly Action<Tournament> _onSave;
         private readonly Action _onCancel;
+        public ObservableCollection<TeamSelection> TeamSelections { get; }
+
 
         public CreateTournamentViewModel( IEnumerable<Team> allTeams, Action<Tournament> onSave, Action onCancel) {
             _onSave = onSave;
             _onCancel = onCancel;
             AllTeams = new ObservableCollection<Team>(allTeams);
+            TeamSelections = new ObservableCollection<TeamSelection>(allTeams.Select(t => new TeamSelection(t)));
         }
-
-        [RelayCommand]
+        private bool CanSave() => !string.IsNullOrWhiteSpace(Title);
+        [RelayCommand(CanExecute = nameof(CanSave))]
         private void Save() {
-            var t = new Tournament{ Title = Title, TeamIds = SelectedTeams.Select(x => x.Id).ToList()};
+            if( TeamSelections.Count(x => x.IsSelected) < 2) {
+                System.Windows.MessageBox.Show("Vyberte alespoň dva týmy", "Nedostatečný počet týmů", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+            var t = new Tournament{ Title = Title, TeamIds = TeamSelections.Where(x => x.IsSelected).Select(x => x.Team.Id).ToList()};
 
             int matchId = 1;
             for (int i = 0; i < t.TeamIds.Count; i++)
@@ -27,7 +40,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
                     t.Matches.Add(new Match {
                         Id = matchId++,
                         HomeTeamId = t.TeamIds[i],
-                        AwayTeamId = t.TeamIds[j]
+                        AwayTeamId = t.TeamIds[j],
+                        Title = $"{AllTeams.First(team => team.Id == t.TeamIds[i]).Name} vs {AllTeams.First(team => team.Id == t.TeamIds[j]).Name}"
                     });
 
             _onSave(t);

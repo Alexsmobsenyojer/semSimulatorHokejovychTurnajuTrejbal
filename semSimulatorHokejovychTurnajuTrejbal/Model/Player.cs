@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using LiteDB;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -52,11 +54,15 @@ namespace semSimulatorHokejovychTurnajuTrejbal
     [JsonPolymorphic]
     [JsonDerivedType(typeof(Goalie), typeDiscriminator: "goalie")]
     [JsonDerivedType(typeof(Skater), typeDiscriminator: "skater")]
-    public abstract class Player {
+    public abstract class Player : ObservableValidator{
         public int Id { get; init; }
         public string FullName { get; set; }
         public int Number { get; set; }
-        public int TeamId { get; set; }
+        [BsonRef("teams")]
+        public Team? Team { get; set; }
+        [JsonPropertyName("teamId")]
+        [BsonIgnore]
+        public int TeamId { get; set;}
     }
    
     public class Skater : Player {

@@ -4,6 +4,7 @@ using semSimulatorHokejovychTurnajuTrejbal.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         private DispatcherTimer _timer;
 
         public ObservableCollection<Player> Players => _service.Players;
+        public ICollectionView Skaters{ get; }
+        public ICollectionView Goalies{ get; }
         public ObservableCollection<Team> Teams => _service.Teams;
         public ObservableCollection<Tournament> Tournaments => _service.Tournaments;
         [ObservableProperty] private ObservableCollection<object> filteredEntities = new();
@@ -57,6 +60,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(StopSimulationCommand))]
         private bool isSimulationRunning = false;
+        [ObservableProperty] private bool isMatchListEnabled = true;
         [ObservableProperty] private bool isSimulationEnabled = false;//zamezit simulaci po skončení zápasu
 
         [ObservableProperty] private GoalEvent? currentGoal;
@@ -77,6 +81,10 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
 
         public MainViewModel() {
             _service = new HockeyService();
+            Skaters = new CollectionViewSource { Source = Players }.View;
+            Skaters.Filter = pl => pl is Skater;
+            Goalies = new CollectionViewSource { Source = Players }.View;
+            Goalies.Filter = p => p is Goalie;
             _timer = new DispatcherTimer();
             _timer.Tick += (s, e) => SimulateMinute();
         }
@@ -210,6 +218,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             _timer.Interval = TimeSpan.FromSeconds(1);
             _timer.Start();
             IsSimulationRunning = true;
+            IsMatchListEnabled = false;
         }
 
         [RelayCommand (CanExecute = nameof(IsSimulationRunning))]
@@ -223,6 +232,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             _timer.Interval = TimeSpan.FromMilliseconds(10);
             _timer.Start();
             IsSimulationRunning = true;
+            IsMatchListEnabled = false;
         }
 
         private void SimulateMinute() {
@@ -237,6 +247,8 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                     IsSimulationRunning = false;
                     SelectedMatch!.WasPlayed = true;
                     IsSimulationEnabled = false;
+                    IsMatchListEnabled = true;
+                    _simulation!.recordOutcome();
                     return;
                 }
                 CurrentPeriod++;
@@ -268,6 +280,10 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
                 PeriodText = "Zápas již byl odehrán";
                 return;
             }
+            HomeScore = 0;
+            AwayScore = 0;
+            HomeShots = 0;
+            AwayShots = 0;
             CurrentMinute = 20;
             CurrentPeriod = 1;
             PeriodText = "1st";
@@ -276,7 +292,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView
             _simulation.MatchUpdated += m => { HomeScore = m.HomeScore; AwayScore = m.AwayScore; };
             _simulation.ShotAttempted += s => { HomeShots = s.IsHome ? HomeShots + 1 : HomeShots; AwayShots = s.IsHome ? AwayShots : AwayShots + 1; };
             _simulation.GoalScored += g => { CurrentGoal = g; ShowGoalAnimation = 100; Task.Delay(3500).ContinueWith(_ => ShowGoalAnimation = 0); 
-                if(g.IsHomeGoal)HomeScore++; else AwayScore++; };
+            if(g.IsHomeGoal)HomeScore++; else AwayScore++; };
             _simulation.HomeStatsUpdated += p => UpdateStatsHome(p);
             _simulation.AwayStatsUpdated += p => UpdateStatsAway(p);
             if (App.Current.MainWindow is MainWindow mainWindow)

@@ -21,7 +21,18 @@
             <TextBox Text="{Binding Title}" Height="30" FontSize="14" Margin="0,0,0,15"/>
 
             <Label Content="Týmy"/>
-            <ListBox ItemsSource="{Binding AllTeams}" SelectionMode="Multiple" DisplayMemberPath="Name" Height="200" BorderBrush="#444" BorderThickness="1"/>
+            <ListBox ItemsSource="{Binding TeamSelections}" SelectionMode="Multiple">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Team.Name}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
