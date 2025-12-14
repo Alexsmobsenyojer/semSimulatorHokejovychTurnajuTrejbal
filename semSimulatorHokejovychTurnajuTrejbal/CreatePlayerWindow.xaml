@@ -35,7 +35,7 @@
                 <Label Content="Bruslení (0-99)"/>
                 <TextBox Text="{Binding Skating}" Margin="0,5"/>
             </StackPanel>
-            <Label Content="Celkové hodnocení (0-99)"/>
+            <Label Content="Celkové hodnocení (0-99) (ovlivňuje pouze brankáře)"/>
             <TextBox Text="{Binding Overall}" Margin="0,10"/>
             <Label Content="Tým"/>
             <ComboBox ItemsSource="{Binding AllTeams}" SelectedItem="{Binding SelectedTeam}" DisplayMemberPath="Name" Margin="0,5"/>

@@ -2,6 +2,7 @@
 using LiteDB;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -56,21 +57,34 @@ namespace semSimulatorHokejovychTurnajuTrejbal
     [JsonDerivedType(typeof(Skater), typeDiscriminator: "skater")]
     public abstract class Player : ObservableValidator{
         public int Id { get; init; }
+        [Required(ErrorMessage = "Jméno hráče je povinné.")]
+        [MinLength(3, ErrorMessage = "Jméno musí mít alespoň 3 znaky.")]
         public string FullName { get; set; }
+        [Range(1, 99, ErrorMessage = "Číslo dresu musí být mezi 1 a 99.")]
         public int Number { get; set; }
         [BsonRef("teams")]
+        [JsonIgnore]
         public Team? Team { get; set; }
         [JsonPropertyName("teamId")]
         [BsonIgnore]
         public int TeamId { get; set;}
+        public void Validate() {
+            ValidateAllProperties();
+        }
     }
    
     public class Skater : Player {
+        [Required(ErrorMessage = "Pozice je povinná.")]
         public Position Position { get; set; }
+        [Required(ErrorMessage = "Role je povinná.")]
         public Role Role { get; set; }
+        [Range(1, 99, ErrorMessage = "Střelba musí být mezi 1 a 99.")]
         public int Shooting { get; set; }
+        [Range(1, 99, ErrorMessage = "Přihrávky musí být mezi 1 a 99.")]
         public int Passing { get; set; }
+        [Range(1, 99, ErrorMessage = "Obrana musí být mezi 1 a 99.")]
         public int Defending { get; set; }
+        [Range(1, 99, ErrorMessage = "Bruslení musí být mezi 1 a 99.")]
         public int Skating { get; set; }
         public int Overall => (Shooting + Passing + Defending + Skating) / 4;
         public SkaterStats Stats { get; set; }= new();
@@ -93,6 +107,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
     }
 
     public class Goalie : Player {
+        [Range(1, 99, ErrorMessage = "Overall musí být mezi 1 a 99.")]
         public int Overall { get; set; }
         public GoalieStats Stats { get; set; } = new();
     }

@@ -43,6 +43,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal.Model {
         public async Task ExportToJsonAsync(IEnumerable<Player> players, IEnumerable<Team> teams, IEnumerable<Tournament> tournaments) {
             var dialog = new SaveFileDialog { FileName = "hockey_data.json", Filter = "JSON soubory (*.json)|*.json|Všechny soubory (*.*)|*.*" };
             if (dialog.ShowDialog() == true) {
+                foreach (var p in players) p.TeamId = teams.FirstOrDefault(t => t.Id == p.Team!.Id)!.Id;
                 var data = new JsonData {
                     Players = players.ToList(),
                     Teams = teams.ToList(),

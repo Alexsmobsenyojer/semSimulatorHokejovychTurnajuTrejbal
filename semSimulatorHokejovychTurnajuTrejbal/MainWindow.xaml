@@ -70,16 +70,23 @@
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Opacity="{Binding ShowPlayers}" Panel.ZIndex="{Binding ShowPlayers}">
                             <DataGrid ItemsSource="{Binding Skaters}" SelectedItem="{Binding SelectedPlayer}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True" Height="440">
+                                <DataGrid.RowValidationErrorTemplate>
+                                    <ControlTemplate>
+                                        <Grid Margin="0,-2,0,-2">
+                                            <Border Background="Red" Opacity="0.8" CornerRadius="3"></Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </DataGrid.RowValidationErrorTemplate>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="50"/>
-                                    <DataGridTextColumn Header="Jméno" Binding="{Binding FullName}" Width="100"/>
-                                    <DataGridTextColumn Header="Číslo" Binding="{Binding Number}" Width="50"/>
-                                    <DataGridTextColumn Header="Pozice" Binding="{Binding Position}" Width="50"/>
-                                    <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="80"/>
-                                    <DataGridTextColumn Header="Střelba" Binding="{Binding Shooting}" Width="50"/>
-                                    <DataGridTextColumn Header="Přihrávky" Binding="{Binding Passing}" Width="50"/>
-                                    <DataGridTextColumn Header="Obrana" Binding="{Binding Defending}" Width="50"/>
-                                    <DataGridTextColumn Header="Bruslení" Binding="{Binding Skating}" Width="50"/>
+                                    <DataGridTextColumn Header="Jméno" Binding="{Binding FullName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="100"/>
+                                    <DataGridTextColumn Header="Číslo" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="50"/>
+                                    <DataGridTextColumn Header="Pozice" Binding="{Binding Position, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="50"/>
+                                    <DataGridTextColumn Header="Role" Binding="{Binding Role, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="80"/>
+                                    <DataGridTextColumn Header="Střelba" Binding="{Binding Shooting, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="50"/>
+                                    <DataGridTextColumn Header="Přihrávky" Binding="{Binding Passing, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="50"/>
+                                    <DataGridTextColumn Header="Obrana" Binding="{Binding Defending, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="50"/>
+                                    <DataGridTextColumn Header="Bruslení" Binding="{Binding Skating, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="50"/>
                                     <DataGridTextColumn Header="Celk. Hodnocení" Binding="{Binding Overall}" IsReadOnly="True" Width="50"/>
                                     <DataGridTextColumn Header="Tým" Binding="{Binding Team.Name}" IsReadOnly="True" Width="150"/>
                                 </DataGrid.Columns>

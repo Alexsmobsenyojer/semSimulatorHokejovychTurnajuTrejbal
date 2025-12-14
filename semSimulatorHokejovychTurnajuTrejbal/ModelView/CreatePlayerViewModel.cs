@@ -52,6 +52,12 @@ namespace semSimulatorHokejovychTurnajuTrejbal.ModelView {
                 goalie.Overall = Overall;
             }
 
+            player.Validate();
+            if (player.HasErrors) {
+                var errors = player.GetErrors();
+                MessageBox.Show(string.Join(Environment.NewLine, errors), "Chyba při vytváření");
+                return;
+            }
             _onSave(player);
             window.Close();
         }
