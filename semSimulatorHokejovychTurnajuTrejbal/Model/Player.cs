@@ -14,7 +14,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Position { C, LW, RW, LD, RD, G}
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum Role { Playmaker, Sniper, TwoWay, Offensive, Defensive }
+    public enum Role { Playmaker, Sniper, PowerForward, TwoWay, Offensive, Defensive }
     public sealed class SkaterStats {
         public int Goals { get; private set; } = 0;
         public int Assists { get; private set; } = 0;
@@ -96,7 +96,7 @@ namespace semSimulatorHokejovychTurnajuTrejbal
                 case Position.C:
                 case Position.LW:
                 case Position.RW:
-                    return role == Role.Playmaker || role == Role.Sniper || role == Role.TwoWay;
+                    return role == Role.Playmaker || role == Role.Sniper || role == Role.PowerForward || role == Role.TwoWay;
                 case Position.LD:
                 case Position.RD:
                     return role == Role.Offensive || role == Role.Defensive || role == Role.TwoWay;
